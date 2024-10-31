@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+const str string = "hi"
 
 func main() {
-	fmt.Println("Hello, World!")
+	// var name string = "hyewon"
+	// compiler will infer the type of variable automatically
+	name := "hyewon"
+	age := 28
+
+	// update variable
+	name = "haewon"
 }
