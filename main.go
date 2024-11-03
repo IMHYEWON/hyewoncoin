@@ -48,4 +48,5 @@ func main() {
 	haewon.SetStudent("haewon", 28)
 	fmt.Println(haewon) // the result will be { 0 }, because the parameter of SetStudent is not a pointer, copy of the struct
 
+	haewon.ShowName()
 }
