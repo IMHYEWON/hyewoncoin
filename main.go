@@ -59,4 +59,28 @@ func main() {
 	xAsBinary := fmt.Sprintf("%b", x) // return x in binary as string
 	fmt.Println(x, xAsBinary)         // print x in decimal and binary
 
+	/* Slices And Arrays */
+	// Arrays in GO are fixed length
+	// Slices are dynamic arrays
+
+	// Array
+	foods := [3]string{"apple", "banana", "cherry"}
+	for _, food := range foods {
+		fmt.Println(food)
+	}
+
+	for i := 0; i < len(foods); i++ {
+		fmt.Println(foods[i])
+	}
+
+	// Slice
+	// Slice doesn't have limit
+	foodsSlice := []string{"apple", "banana", "cherry"}
+	foodsSlice = append(foodsSlice, "donut")
+	foodsSlice = append(foodsSlice, "egg", "fish")
+
+	served := foodsSlice[1:3] // it will return a slice of foodsSlice from index 1 to 3
+	fmt.Println(foodsSlice)
+	fmt.Println(served)
+
 }
