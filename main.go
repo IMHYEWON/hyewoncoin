@@ -49,4 +49,14 @@ func main() {
 		fmt.Println(index, letter)  // it will print byte code
 		fmt.Println(string(letter)) // it will print string
 	}
+
+	x := 23214345
+	fmt.Printf("%b\n", x) // print x in binary
+	fmt.Printf("%o\n", x) // print x in octal
+	fmt.Printf("%x\n", x) // print x in hexadecimal
+	fmt.Printf("%U\n", x) // print x in unicode
+
+	xAsBinary := fmt.Sprintf("%b", x) // return x in binary as string
+	fmt.Println(x, xAsBinary)         // print x in decimal and binary
+
 }
