@@ -2,8 +2,30 @@ package main
 
 import "fmt"
 
-/* Pointer */
+// Go doesnt' have class or object, but it has struct
+type person struct {
+	name string
+	age  int
+}
+
+// this is a method of the person struct
+// it's similar to method of Object Oriented Programming
+func (p person) sayHello() {
+	fmt.Printf("Hello, my name is %s and I'm %d", p.name, p.age)
+}
+
+func (p person) sayKoreanAge() {
+	fmt.Printf("Hello, my name is %s and I'm %d in Korean age", p.name, p.age+2)
+}
+
+/* Pointer & Structs */
 func main() {
+	hyewon := person{"hyewon", 28}
+	fmt.Println("hyewon's name : ", hyewon.name)
+	fmt.Println("hyewon's age : ", hyewon.age)
+	hyewon.sayHello()
+	hyewon.sayKoreanAge()
+
 	a := 2
 	b := a // copy the value of a to b
 	a = 12
