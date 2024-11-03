@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/IMHYEWON/hyewoncoin/student"
+)
 
 // Go doesnt' have class or object, but it has struct
 type person struct {
@@ -38,4 +42,10 @@ func main() {
 	c := &a            // c, a would be in the same place in the memory
 	fmt.Println(c, &a) // this will print the memory address of a
 	fmt.Println(*c)    // this will print the value of a
+
+	haewon := student.Student{}
+	fmt.Println(haewon) // the result will be { 0 }
+	haewon.SetStudent("haewon", 28)
+	fmt.Println(haewon) // the result will be { 0 }, because the parameter of SetStudent is not a pointer, copy of the struct
+
 }
