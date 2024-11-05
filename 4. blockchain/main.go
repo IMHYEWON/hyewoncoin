@@ -25,4 +25,16 @@ func main() {
 	genesisBlock.hash = hexHash // get Hash from "Genesis Block" and assign it to hash
 	fmt.Println(genesisBlock)
 
+	// 2nd block
+	secondBlock := block{"Second Block", "", genesisBlock.hash}
+
+	// Same
+	fmt.Println("GenesisBlock Hash: ", hexHash, "Prev Hash: ", secondBlock.prevHash)
+	equal := hexHash == secondBlock.prevHash
+	fmt.Println("Equal: ", equal)
+
+	secondHash := sha256.Sum256([]byte(secondBlock.data + secondBlock.prevHash))
+	secondHexHash := fmt.Sprintf("%x", secondHash)
+	secondBlock.hash = secondHexHash
+	fmt.Println(secondBlock)
 }
