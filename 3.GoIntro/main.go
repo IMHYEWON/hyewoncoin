@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/IMHYEWON/hyewoncoin/student"
+	"github.com/IMHYEWON/hyewoncoin/3.GoIntro/student"
 )
 
 // Go doesnt' have class or object, but it has struct
