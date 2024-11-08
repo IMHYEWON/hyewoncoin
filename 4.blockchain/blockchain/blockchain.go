@@ -7,9 +7,9 @@ import (
 )
 
 type block struct {
-	data     string
-	hash     string
-	prevHash string
+	Data     string
+	Hash     string
+	PrevHash string
 }
 
 type blockchain struct {
@@ -24,9 +24,9 @@ var once sync.Once
 
 // 블록의 해시값을 계산해서 리턴
 func (bl *block) getCalculateHash() string {
-	hash := sha256.Sum256([]byte(bl.data + bl.prevHash))
-	bl.hash = fmt.Sprintf("%x", hash)
-	return bl.hash
+	hash := sha256.Sum256([]byte(bl.Data + bl.PrevHash))
+	bl.Hash = fmt.Sprintf("%x", hash)
+	return bl.Hash
 }
 
 // 마지막 블록의 해시값을 리턴
@@ -35,14 +35,18 @@ func getLastHash() string {
 	if totalBlocks == 0 {
 		return ""
 	}
-	return GetBlockChain().blocks[totalBlocks-1].hash
+	return GetBlockChain().blocks[totalBlocks-1].Hash
 }
 
 // 새로운 블록을 생성
 func createBlock(data string) *block {
 	newBlock := block{data, "", getLastHash()}
-	newBlock.hash = newBlock.getCalculateHash()
+	newBlock.Hash = newBlock.getCalculateHash()
 	return &newBlock
+}
+
+func (b *blockchain) AddBlock(data string) {
+	b.blocks = append(b.blocks, createBlock(data))
 }
 
 // 한번만 실행되는 코드
@@ -54,10 +58,14 @@ func GetBlockChain() *blockchain {
 		// 블록체인 인스턴스 생성이 단 한번만 실행되도록 보장
 		once.Do(func() {
 			b = &blockchain{}
-			b.blocks = append(b.blocks, createBlock("Genesis Block"))
+			b.AddBlock("Genesis Block")
 		})
 	}
 
 	// 블록체인 인스턴스 반인
 	return b
+}
+
+func (b *blockchain) AllBlocks() []*block {
+	return b.blocks
 }
