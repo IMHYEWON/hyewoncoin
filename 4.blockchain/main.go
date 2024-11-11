@@ -28,12 +28,25 @@ func home(rw http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(rw, "home", data)
 }
 
+func add(rw http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		templates.ExecuteTemplate(rw, "add", nil)
+	case "POST":
+		r.ParseForm()
+		data := r.Form.Get("blockData")
+		blockchain.GetBlockChain().AddBlock(data)
+		http.Redirect(rw, r, "/", http.StatusPermanentRedirect)
+	}
+}
+
 func main() {
 	templates = template.Must(template.ParseGlob(templateDir + "pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml"))
 
 	// Node.js의 라우터와 비슷한 기능
 	http.HandleFunc("/", home)
+	http.HandleFunc("/add", add)
 	fmt.Printf("Listening on http://localhost%s\n", port)
 
 	// log.Fatal : 프로그램 에러 발생시 프로그램 종료 후 메시지 출력
