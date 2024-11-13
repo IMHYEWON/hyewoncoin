@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/IMHYEWON/hyewoncoin/6.restapi/utils"
 )
 
 const port string = ":4000"
 
 type URLDescreption struct {
-	URL         string
-	Method      string
-	Description string
+	URL         string `json:"url"` // json 태그를 사용하여 JSON 키 이름을 변경 (java의 @JsonProperty의 역할)
+	Method      string `json:"method"`
+	Description string `json:"description"`
+	Payload     string `json:"payload,omitempty"` // omitempty : 값이 비어있으면 JSON에서 생략 (java의 @JsonInclude(Include.NON_NULL)의 역할)
+	IgonreMe    string `json:"-"`                 // JSON으로 변환하지 않음 (java의 @JsonIgnore의 역할)
 }
 
 func documentation(rw http.ResponseWriter, r *http.Request) {
@@ -23,15 +23,21 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			URL:         "/",
 			Method:      "GET",
 			Description: "See Documentation",
+			IgonreMe:    "I'm not going to be in the JSON response",
+		},
+		{
+			URL:         "/bloacks",
+			Method:      "POST",
+			Description: "Add a block",
+			Payload:     "data:string",
 		},
 	}
 
+	// 응답을 application/json으로 설정
 	rw.Header().Add("Content-Type", "application/json")
-	// json.Marshal : 구조체를 JSON으로 변환
-	b, err := json.Marshal(data)
-	utils.HandleErr(err)
-	fmt.Printf("%s", b)
-	fmt.Fprintf(rw, "%s", b)
+
+	// json.NewEncoder : JSON 인코딩을 위한 인코더 생성
+	json.NewEncoder(rw).Encode(data)
 }
 
 func main() {
