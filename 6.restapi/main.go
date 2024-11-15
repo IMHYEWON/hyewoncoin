@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/IMHYEWON/hyewoncoin/4.blockchain/blockchain"
+	"github.com/IMHYEWON/hyewoncoin/6.restapi/utils"
 )
 
 const port string = ":4000"
@@ -24,6 +27,10 @@ type URLDescreption struct {
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"` // omitempty : 값이 비어있으면 JSON에서 생략 (java의 @JsonInclude(Include.NON_NULL)의 역할)
 	IgonreMe    string `json:"-"`                 // JSON으로 변환하지 않음 (java의 @JsonIgnore의 역할)
+}
+
+type AddBlockBody struct {
+	Message string
 }
 
 // String() : fmt.Stringer 인터페이스를 구현하여 String() 메서드를 오버라이딩
@@ -55,6 +62,25 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(data)
 }
 
+func blocks(rw http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		rw.Header().Add("Content-Type", "application/json")
+		json.NewEncoder(rw).Encode(blockchain.GetBlockChain().AllBlocks())
+	case "POST":
+		// request body to block struct
+		var addBlockBody AddBlockBody
+
+		// json.NewDecoder : JSON 디코딩을 위한 디코더 생성
+		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
+		fmt.Println(addBlockBody)
+
+		blockchain.GetBlockChain().AddBlock(addBlockBody.Message)
+		rw.WriteHeader(http.StatusCreated)
+	}
+
+}
+
 func main() {
 
 	// It will print "Hello I'm the URL Description"
@@ -65,6 +91,8 @@ func main() {
 	})
 
 	http.HandleFunc("/", documentation)
+	http.HandleFunc("/blocks", blocks)
+
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

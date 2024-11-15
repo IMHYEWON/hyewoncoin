@@ -19,3 +19,7 @@
   - Go에게 Stringer interface라고 말해줄 필요가 없음, 단지 **Signature가 동일한 인터페이스의 메소드를 오버라이딩 하면 됨**
 - MarshalText 
   - Field가 Json String으로써 어떻게 보일지 결정하는 메소드
+
+## 6.3 JSON DECODE
+- POST method에서 Request Body를 받기 위해 새로운 리퀘스트 struct 생성 및 decode
+  - `json.NewDecoder(r.Body).Decode(&addBlockBody)` 
