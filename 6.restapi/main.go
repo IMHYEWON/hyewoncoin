@@ -9,24 +9,39 @@ import (
 
 const port string = ":4000"
 
+type URL string
+
+// TestMarshaler : URL 타입을 JSON 형식으로 변환하는 인터페이스
+// MarshalText() : URL 타입을 특정 형식으로 변환하는 TextMarshaler 인터페이스의 메서드
+// Go에서는 인터페이스를 명시적으로 구현하지 않음 (signature만 맞으면 자동으로 구현)
+func (u URL) MarshalText() ([]byte, error) {
+	return []byte(fmt.Sprintf("http://localhost%s%s", port, u)), nil
+}
+
 type URLDescreption struct {
-	URL         string `json:"url"` // json 태그를 사용하여 JSON 키 이름을 변경 (java의 @JsonProperty의 역할)
+	URL         URL    `json:"url"` // json 태그를 사용하여 JSON 키 이름을 변경 (java의 @JsonProperty의 역할)
 	Method      string `json:"method"`
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"` // omitempty : 값이 비어있으면 JSON에서 생략 (java의 @JsonInclude(Include.NON_NULL)의 역할)
 	IgonreMe    string `json:"-"`                 // JSON으로 변환하지 않음 (java의 @JsonIgnore의 역할)
 }
 
+// String() : fmt.Stringer 인터페이스를 구현하여 String() 메서드를 오버라이딩
+// URLDescreption 타입을 fmt.Stringer 인터페이스로 사용할 수 있음
+func (u URLDescreption) String() string {
+	return "Hello I'm the URL Description"
+}
+
 func documentation(rw http.ResponseWriter, r *http.Request) {
 	data := []URLDescreption{
 		{
-			URL:         "/",
+			URL:         URL("/"),
 			Method:      "GET",
 			Description: "See Documentation",
 			IgonreMe:    "I'm not going to be in the JSON response",
 		},
 		{
-			URL:         "/bloacks",
+			URL:         URL("/blocks"),
 			Method:      "POST",
 			Description: "Add a block",
 			Payload:     "data:string",
@@ -41,6 +56,14 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	// It will print "Hello I'm the URL Description"
+	fmt.Println(URLDescreption{
+		URL:         "/",
+		Method:      "GET",
+		Description: "See Documentation",
+	})
+
 	http.HandleFunc("/", documentation)
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))
