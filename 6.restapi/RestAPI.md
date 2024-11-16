@@ -28,4 +28,11 @@
 - Mux : Multiplexer
   - handling request by url
   - 같은 multiplexer 를 사용해서 rest.go, explore.go 핸들링
-  - 새로운 handler를 생성해서 이를 사
+  - 새로운 handler를 생성해서 이를 사용
+
+## 6.5 Gorila Mux
+- Gorila Mux
+  - Gorila : go의 toolkit 으로 context, session, mux, rpc ...사용 가능
+  - Gorila Mux는 path variable 등 기능 지원 
+  - `go get -u github.com/gorilla/mux`
+  - mux.Vars : URL에서 변수를 추출하여 map으로 반환

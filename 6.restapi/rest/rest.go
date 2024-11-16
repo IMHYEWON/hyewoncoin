@@ -8,21 +8,22 @@ import (
 
 	"github.com/IMHYEWON/hyewoncoin/6.restapi/blockchain"
 	"github.com/IMHYEWON/hyewoncoin/6.restapi/utils"
+	"github.com/gorilla/mux"
 )
 
 var port string
 
-type URL string
+type url string
 
 // TestMarshaler : URL 타입을 JSON 형식으로 변환하는 인터페이스
 // MarshalText() : URL 타입을 특정 형식으로 변환하는 TextMarshaler 인터페이스의 메서드
 // Go에서는 인터페이스를 명시적으로 구현하지 않음 (signature만 맞으면 자동으로 구현)
-func (u URL) MarshalText() ([]byte, error) {
+func (u url) MarshalText() ([]byte, error) {
 	return []byte(fmt.Sprintf("http://localhost%s%s", port, u)), nil
 }
 
 type urlDescreption struct {
-	URL         URL    `json:"url"` // json 태그를 사용하여 JSON 키 이름을 변경 (java의 @JsonProperty의 역할)
+	URL         url    `json:"url"` // json 태그를 사용하여 JSON 키 이름을 변경 (java의 @JsonProperty의 역할)
 	Method      string `json:"method"`
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"` // omitempty : 값이 비어있으면 JSON에서 생략 (java의 @JsonInclude(Include.NON_NULL)의 역할)
@@ -42,16 +43,21 @@ func (u urlDescreption) String() string {
 func documentation(rw http.ResponseWriter, r *http.Request) {
 	data := []urlDescreption{
 		{
-			URL:         URL("/"),
+			URL:         url("/"),
 			Method:      "GET",
 			Description: "See Documentation",
 			IgonreMe:    "I'm not going to be in the JSON response",
 		},
 		{
-			URL:         URL("/blocks"),
+			URL:         url("/blocks"),
 			Method:      "POST",
 			Description: "Add a block",
 			Payload:     "data:string",
+		},
+		{
+			URL:         url("/blocks/{id}"),
+			Method:      "GET",
+			Description: "See a block",
 		},
 	}
 
@@ -81,16 +87,24 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 
 }
 
+func block(rw http.ResponseWriter, r *http.Request) {
+	// mux.Vars : URL에서 변수를 추출하여 map으로 반환
+	vars := mux.Vars(r)
+	id := vars["id"]
+	fmt.Println(id)
+}
+
 func Start(aPort int) {
 	// http.NewServeMux : HTTP 요청을 처리하는 새로운 라우터 생성
-	handler := http.NewServeMux()
+	router := mux.NewRouter()
 
 	// port 전역 변수에 포트 번호 저전
 	port = fmt.Sprintf(":%d", aPort)
 
-	handler.HandleFunc("/", documentation)
-	handler.HandleFunc("/blocks", blocks)
+	router.HandleFunc("/", documentation).Methods("GET")
+	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
+	router.HandleFunc("/blocks/{id:[0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
-	log.Fatal(http.ListenAndServe(port, handler))
+	log.Fatal(http.ListenAndServe(port, router))
 }

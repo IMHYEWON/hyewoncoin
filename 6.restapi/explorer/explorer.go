@@ -7,6 +7,7 @@ import (
 	"text/template"
 
 	"github.com/IMHYEWON/hyewoncoin/4.blockchain/blockchain"
+	"github.com/gorilla/mux"
 )
 
 const templateDir string = "explorer/templates/"
@@ -41,7 +42,7 @@ func add(rw http.ResponseWriter, r *http.Request) {
 
 func Start(port int) {
 	// http.NewServeMux : HTTP 요청을 처리하는 새로운 라우터 생성
-	handler := http.NewServeMux()
+	handler := mux.NewRouter()
 
 	templates = template.Must(template.ParseGlob(templateDir + "pages/*.gohtml"))
 	templates = template.Must(templates.ParseGlob(templateDir + "partials/*.gohtml"))
