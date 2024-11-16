@@ -23,3 +23,5 @@
 ## 6.3 JSON DECODE
 - POST method에서 Request Body를 받기 위해 새로운 리퀘스트 struct 생성 및 decode
   - `json.NewDecoder(r.Body).Decode(&addBlockBody)` 
+
+## 6.4 NewServeMux
