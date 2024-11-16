@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/IMHYEWON/hyewoncoin/6.restapi/blockchain"
 	"github.com/IMHYEWON/hyewoncoin/6.restapi/utils"
@@ -55,7 +56,7 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Payload:     "data:string",
 		},
 		{
-			URL:         url("/blocks/{id}"),
+			URL:         url("/blocks/{height}"),
 			Method:      "GET",
 			Description: "See a block",
 		},
@@ -90,8 +91,11 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 func block(rw http.ResponseWriter, r *http.Request) {
 	// mux.Vars : URL에서 변수를 추출하여 map으로 반환
 	vars := mux.Vars(r)
-	id := vars["id"]
-	fmt.Println(id)
+	// strconv.Atoi : 문자열을 정수로 변환
+	id, err := strconv.Atoi(vars["height"])
+	utils.HandleErr(err)
+	block := blockchain.GetBlockChain().GetBlockByHeight(id)
+	json.NewEncoder(rw).Encode(block)
 }
 
 func Start(aPort int) {
@@ -103,7 +107,7 @@ func Start(aPort int) {
 
 	router.HandleFunc("/", documentation).Methods("GET")
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
-	router.HandleFunc("/blocks/{id:[0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
+	router.HandleFunc("/blocks/{height:[0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, router))

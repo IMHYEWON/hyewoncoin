@@ -36,3 +36,9 @@
   - Gorila Mux는 path variable 등 기능 지원 
   - `go get -u github.com/gorilla/mux`
   - mux.Vars : URL에서 변수를 추출하여 map으로 반환
+
+## 6.6 Atoi
+- Height를 리퀘스트로 받아 특정 블록하나만 보여주는 함수
+  - mux.Vars의 Map Value는 String 이기 때문에 int로 사용하려면 변환해야함
+- Go에는 형변환만을 위한 패키지가 있음
+  - `package strconv` 
