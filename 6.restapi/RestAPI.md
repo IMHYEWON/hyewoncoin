@@ -21,7 +21,11 @@
   - Field가 Json String으로써 어떻게 보일지 결정하는 메소드
 
 ## 6.3 JSON DECODE
-- POST method에서 Request Body를 받기 위해 새로운 리퀘스트 struct 생성 및 decode
+- POST method에서 Request Bo용dy를 받기 위해 새로운 리퀘스트 struct 생성 및 decode
   - `json.NewDecoder(r.Body).Decode(&addBlockBody)` 
 
 ## 6.4 NewServeMux
+- Mux : Multiplexer
+  - handling request by url
+  - 같은 multiplexer 를 사용해서 rest.go, explore.go 핸들링
+  - 새로운 handler를 생성해서 이를 사

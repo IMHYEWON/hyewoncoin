@@ -10,7 +10,7 @@ import (
 	"github.com/IMHYEWON/hyewoncoin/6.restapi/utils"
 )
 
-const port string = ":4000"
+var port string
 
 type URL string
 
@@ -81,18 +81,16 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 
 }
 
-func Start() {
+func Start(aPort int) {
+	// http.NewServeMux : HTTP 요청을 처리하는 새로운 라우터 생성
+	handler := http.NewServeMux()
 
-	// It will print "Hello I'm the URL Description"
-	fmt.Println(urlDescreption{
-		URL:         "/",
-		Method:      "GET",
-		Description: "See Documentation",
-	})
+	// port 전역 변수에 포트 번호 저전
+	port = fmt.Sprintf(":%d", aPort)
 
-	http.HandleFunc("/", documentation)
-	http.HandleFunc("/blocks", blocks)
+	handler.HandleFunc("/", documentation)
+	handler.HandleFunc("/blocks", blocks)
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	log.Fatal(http.ListenAndServe(port, handler))
 }
