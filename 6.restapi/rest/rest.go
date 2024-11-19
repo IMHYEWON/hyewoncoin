@@ -35,6 +35,10 @@ type addBlockBody struct {
 	Message string
 }
 
+type errorResponse struct {
+	ErrorMessage string `json:"errorMessage"`
+}
+
 // String() : fmt.Stringer 인터페이스를 구현하여 String() 메서드를 오버라이딩
 // URLDescreption 타입을 fmt.Stringer 인터페이스로 사용할 수 있음
 func (u urlDescreption) String() string {
@@ -94,8 +98,13 @@ func block(rw http.ResponseWriter, r *http.Request) {
 	// strconv.Atoi : 문자열을 정수로 변환
 	id, err := strconv.Atoi(vars["height"])
 	utils.HandleErr(err)
-	block := blockchain.GetBlockChain().GetBlockByHeight(id)
-	json.NewEncoder(rw).Encode(block)
+	block, err := blockchain.GetBlockChain().GetBlock(id)
+	encoder := json.NewEncoder(rw)
+	if err == blockchain.ErrNotFound {
+		encoder.Encode(errorResponse{fmt.Sprint(err)})
+	} else {
+		encoder.Encode(block)
+	}
 }
 
 func Start(aPort int) {
