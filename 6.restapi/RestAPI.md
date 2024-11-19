@@ -42,3 +42,40 @@
   - mux.Vars의 Map Value는 String 이기 때문에 int로 사용하려면 변환해야함
 - Go에는 형변환만을 위한 패키지가 있음
   - `package strconv` 
+
+## 6.7 Error Handling
+- method에서 error 리턴
+  -  API 에서는 error response를 만들어서 이를 리턴
+
+## 6.8 Middlewares
+- API Response를 json으로 설정하는 미들웨어 함수 생성
+  - 내부적으로 NextServeHTTP 메서드를 호출하여 다음 핸들러로 요청을 전달
+  - 라우터에서 미들웨어 함수 사용
+- Adapter Pattern :
+  - 호환되지 않는 인터페이스를 가진 두 클래스가 함께 동작할 수 있도록 연결하는 역할을 합니다. 마치 "어댑터"가 전압이 다른 전자제품을 연결하는 것처럼, 특정 객체의 인터페이스를 클라이언트가 기대하는 인터페이스로 변환
+  - Handler 타입객체를 직접 생성 & ServeHTTP 인터페이스 함수를 구현하는 것이 아니고, HandlerFunc으로 정의된 타입의 객체를 생성하면 (적절한 Signature를 전했을 때) HandlerFunc이 대신 구현해줌
+  - Adapter Pattern을 사용하는 이유? 
+    - 다른 인터페이스를 사용하는 기존 코드와 통합해야 할 때 유용
+    - 유연한 미들웨어 구성: 여러 미들웨어를 조합하여 요청 처리 로직을 동적으로 구성할 때.
+    - 인터페이스와 함수의 결합: 특정 인터페이스를 만족시키기 위해 함수를 래핑할 때.
+  - Middleware 함수의 argument, return value 모두 `Handler` Type
+    - Go의 HTTP 서버는 모든 요청 처리를 위해 http.Handler 인터페이스를 사용
+    ``` Go
+    type Handler interface {
+      ServeHTTP(ResponseWriter, *Request)
+    }
+    ```
+  - HandlerFunc (Adapter)
+    ``` Go
+    // The HandlerFunc type is an adapter to allow the use of
+    // ordinary functions as HTTP handlers. If f is a function
+    // with the appropriate signature, HandlerFunc(f) is a
+    // [Handler] that calls f.
+    // HandlerFunc는 ServeHTTP 메서드를 구현함으로써 Handler 인터페이스를 충족
+    type HandlerFunc func(ResponseWriter, *Request)
+
+    // ServeHTTP calls f(w, r).
+    func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
+      f(w, r) // // 실제로는 정의된 함수 f를 호출
+    }
+    ```

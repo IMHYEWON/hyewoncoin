@@ -66,9 +66,6 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	// 응답을 application/json으로 설정
-	rw.Header().Add("Content-Type", "application/json")
-
 	// json.NewEncoder : JSON 인코딩을 위한 인코더 생성
 	json.NewEncoder(rw).Encode(data)
 }
@@ -107,6 +104,19 @@ func block(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
+	// 내부적으로 NextServeHTTP 메서드를 호출하여 다음 핸들러로 요청을 전달
+	// API 요청이 들어올 때 getBlock같은 메소드 전에 실행
+
+	// HandlerFunc : function이 아닌 type이므로 실제로 http.HandleFunc ~ 처럼 사용시에는 type 변수가 생성됨,
+	// 그럼 어떻게 HandlerFunc type이 HandlerFunc Interface로 인식하고 구현되는걸까?
+	// -> adapter pattern : adapter에게 적절한 argument를 넘겨주면 adapter가 해당 argument를 받아서 적절한 type으로 변환하여 사용
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		rw.Header().Add("Content-Type", "application/json")
+		next.ServeHTTP(rw, r)
+	})
+}
+
 func Start(aPort int) {
 	// http.NewServeMux : HTTP 요청을 처리하는 새로운 라우터 생성
 	router := mux.NewRouter()
@@ -114,6 +124,7 @@ func Start(aPort int) {
 	// port 전역 변수에 포트 번호 저전
 	port = fmt.Sprintf(":%d", aPort)
 
+	router.Use(jsonContentTypeMiddleWare)
 	router.HandleFunc("/", documentation).Methods("GET")
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
 	router.HandleFunc("/blocks/{height:[0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
