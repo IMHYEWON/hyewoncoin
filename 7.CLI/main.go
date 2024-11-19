@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 )
@@ -17,14 +18,23 @@ func main() {
 	if len(os.Args) < 2 {
 		usage()
 	}
+	fmt.Println(os.Args[2:])
+
+	restCmd := flag.NewFlagSet("rest", flag.ExitOnError)
+	portFlag := restCmd.Int("port", 4000, "Set the port for the server (default: 4000)")
 
 	// os.Args[1] : Command
 	switch os.Args[1] {
 	case "explorer":
 		fmt.Println("Launch the HTML Explorer")
 	case "rest":
-		fmt.Println("Launch the REST API")
+		restCmd.Parse(os.Args[2:])
 	default:
 		usage()
+	}
+
+	if restCmd.Parsed() {
+		fmt.Println("Start the REST API server")
+		fmt.Println(*portFlag)
 	}
 }
