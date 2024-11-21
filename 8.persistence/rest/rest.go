@@ -74,7 +74,7 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		rw.Header().Add("Content-Type", "application/json")
-		json.NewEncoder(rw).Encode(blockchain.GetBlockChain().AllBlocks())
+		json.NewEncoder(rw).Encode(blockchain.BlockChain().AllBlocks())
 	case "POST":
 		// request body to block struct
 		var addBlockBody addBlockBody
@@ -83,7 +83,7 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
 		fmt.Println(addBlockBody)
 
-		blockchain.GetBlockChain().AddBlock(addBlockBody.Message)
+		blockchain.BlockChain().AddBlock(addBlockBody.Message)
 		rw.WriteHeader(http.StatusCreated)
 	}
 
@@ -95,7 +95,7 @@ func block(rw http.ResponseWriter, r *http.Request) {
 	// strconv.Atoi : 문자열을 정수로 변환
 	id, err := strconv.Atoi(vars["height"])
 	utils.HandleErr(err)
-	block, err := blockchain.GetBlockChain().GetBlock(id)
+	block, err := blockchain.BlockChain().GetBlock(id)
 	encoder := json.NewEncoder(rw)
 	if err == blockchain.ErrNotFound {
 		encoder.Encode(errorResponse{fmt.Sprint(err)})

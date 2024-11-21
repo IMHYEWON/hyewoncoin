@@ -1,7 +1,8 @@
 package main
 
-import "github.com/IMHYEWON/hyewoncoin/8.persistence/cli"
+import "github.com/IMHYEWON/hyewoncoin/8.persistence/blockchain"
 
 func main() {
-	cli.Start()
+
+	blockchain.BlockChain()
 }

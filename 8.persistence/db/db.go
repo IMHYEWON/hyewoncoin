@@ -1,7 +1,9 @@
 package db
 
 import (
-	"github.com/IMHYEWON/hyewoncoin/6.restapi/utils"
+	"fmt"
+
+	"github.com/IMHYEWON/hyewoncoin/8.persistence/utils"
 	"github.com/boltdb/bolt"
 )
 
@@ -29,4 +31,28 @@ func DB() *bolt.DB {
 		utils.HandleErr(err)
 	}
 	return db
+}
+
+// Block Bucket에 Block을 저장, key: hash, value: block data
+// data는 []byte로 받아서 저장 (block.go에서 toBytes()로 []byte로 변환)
+func SaveBlock(hash string, data []byte) {
+	fmt.Printf("Saving Block %s\nData: %b\n", hash, data)
+
+	err := DB().Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(blocksBucket))
+		err := bucket.Put([]byte(hash), data) // key: hash, value: block data
+		return err
+	})
+
+	utils.HandleErr(err)
+}
+
+// 블록체인에는 마지막 블록의 hash만 저장
+func SaveBlockchain(data []byte) {
+	err := DB().Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(dataBucket))
+		err := bucket.Put([]byte("checkpoint"), data)
+		return err
+	})
+	utils.HandleErr(err)
 }
