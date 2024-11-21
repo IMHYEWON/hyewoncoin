@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/IMHYEWON/hyewoncoin/8.persistence/explorer"
 	"github.com/IMHYEWON/hyewoncoin/8.persistence/rest"
@@ -14,7 +15,7 @@ func usage() {
 	fmt.Println("Please use the following commands:")
 	fmt.Println("-port=4000: Launch the HTML Explorer")
 	fmt.Println("-mode=rest: Launch the REST API (recommended)")
-	os.Exit(0)
+	runtime.Goexit() // it will termainate all program, but it will not terminate the defer function
 }
 func Start() {
 	if len(os.Args) < 2 {

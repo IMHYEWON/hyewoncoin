@@ -31,3 +31,7 @@
 
 # 8.6 Restoring Block
 - hash 값으로 찾고자 하는 Block을 검색
+
+# 8.7 All Blocks
+- 모든 블록을 가져오는 함수 
+  - 가장 마지막 블록으로부터 prevHash를 따라가면서 이전 블록을 찾으며 모든 블록 조회

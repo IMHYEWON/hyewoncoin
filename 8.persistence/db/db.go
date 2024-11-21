@@ -34,6 +34,10 @@ func DB() *bolt.DB {
 	return db
 }
 
+func Close() {
+	DB().Close()
+}
+
 // Block Bucket에 Block을 저장, key: hash, value: block data
 // data는 []byte로 받아서 저장 (block.go에서 toBytes()로 []byte로 변환)
 func SaveBlock(hash string, data []byte) {

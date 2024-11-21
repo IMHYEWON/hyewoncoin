@@ -37,16 +37,6 @@ func FindBlock(hash string) (*Block, error) {
 	return block, nil
 }
 
-func AllBlocks() []*Block {
-	blocks := []*Block{}
-	hashes := db.Blocks()
-	for _, hash := range hashes {
-		block := &Block{}
-		block.restore(hash)
-		blocks = append(blocks, block)
-	}
-	return blocks
-}
 func createBlock(data string, prevHash string, height int) *Block {
 	block := &Block{
 		Data:     data,

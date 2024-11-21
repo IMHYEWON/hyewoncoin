@@ -38,6 +38,25 @@ func (b *blockchain) AddBlock(data string) {
 	b.persist()
 }
 
+// 모든 블록을 가져오는 함수
+// Newest Block으로부터 prevHash를 따라가면서 모든 블록을 가져옴
+func (b *blockchain) Blocks() []*Block {
+	var blocks []*Block
+	hashCursor := b.NewestHash
+
+	for {
+		block, _ := FindBlock(hashCursor)
+		blocks = append(blocks, block)
+
+		if block.PrevHash != "" {
+			hashCursor = block.PrevHash
+		} else {
+			break
+		}
+	}
+	return blocks
+}
+
 // 이 메소드로 블록체인 생성을 제어
 func BlockChain() *blockchain {
 	// nil : 아무것도 없음을 나타내는 특별한 값
