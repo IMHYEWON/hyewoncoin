@@ -72,3 +72,28 @@ func Checkpoint() []byte {
 	fmt.Printf("Data: %x\n", data)
 	return data
 }
+
+// Block Bucket에서 hash에 해당하는 block을 가져와서 반환
+func Block(hash string) []byte {
+	var data []byte
+	DB().View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(blocksBucket))
+		data = bucket.Get([]byte(hash))
+		return nil
+	})
+	return data
+}
+
+func Blocks() [][]byte {
+	var blocks [][]byte
+	DB().View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(blocksBucket))
+		cursor := bucket.Cursor()
+
+		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
+			blocks = append(blocks, v)
+		}
+		return nil
+	})
+	return blocks
+}

@@ -28,3 +28,6 @@
 - Blockchain 객체를 초기화할 때, DB에서 `checkpoint`값을 조회
   - 체크포인트가 없는 경우 Genesis Block을 생성
   - 체크포인트가 있는 경우 `checkpoint`(hash를 byte array로 저장된 값)를 decoding해 blockcahin struct로 복구
+
+# 8.6 Restoring Block
+- hash 값으로 찾고자 하는 Block을 검색

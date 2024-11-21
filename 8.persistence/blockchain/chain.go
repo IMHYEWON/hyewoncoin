@@ -1,8 +1,6 @@
 package blockchain
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"sync"
 
@@ -23,12 +21,10 @@ var b *blockchain
 var once sync.Once
 
 func (b *blockchain) restore(data []byte) {
-	decoder := gob.NewDecoder(bytes.NewReader(data))
-
 	// blockchain 구조체에 저장된 데이터를 디코딩
 	// argument should be a pointer to the value
 	// decode will replace the value on the memory address
-	decoder.Decode(b)
+	utils.FromBytes(b, data)
 }
 
 func (b *blockchain) persist() {

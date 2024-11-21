@@ -22,7 +22,6 @@ type homeData struct {
 // ResponseWriter : 응답을 작성하는 인터페이스
 // Request : 클라이언트의 요청을 나타내는 구조체 (*포인터)
 func home(rw http.ResponseWriter, r *http.Request) {
-	blockchain := blockchain.BlockChain()
 	data := homeData{PageTitle: "Blockchain Home Page", Blocks: blockchain.AllBlocks()}
 	// Execute : 템플릿을 렌더링하여 출력
 	templates.ExecuteTemplate(rw, "home", data)
