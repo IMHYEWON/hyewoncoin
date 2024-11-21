@@ -2,6 +2,9 @@ package blockchain
 
 import (
 	"sync"
+
+	"github.com/IMHYEWON/hyewoncoin/8.persistence/db"
+	"github.com/IMHYEWON/hyewoncoin/8.persistence/utils"
 )
 
 type blockchain struct {
@@ -16,11 +19,15 @@ var b *blockchain
 // sync.Once : 한번만 실행되는 코드를 실행하기 위한 구조체
 var once sync.Once
 
+func (b *blockchain) persist() {
+	db.SaveBlockchain(utils.ToBytes(b))
+}
+
 func (b *blockchain) AddBlock(data string) {
 	block := createBlock(data, b.NewestHash, b.Height+1)
 	b.NewestHash = block.Hash
 	b.Height = block.Height
-
+	b.persist()
 }
 
 // 이 메소드로 블록체인 생성을 제어

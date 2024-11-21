@@ -15,8 +15,11 @@
   - 블록 생성은 이전과 동일 (함수 분리)
   - 블록을 생성하고 나서는, 생성된 블록(=블록 체인의 마지막 블록)의 hash와 블록체인의 height만 저장
     - DB에 블록들을 저장할 예정
-    -정
 
 # 8.3 Saving A Block
 - 블록을 실제DB에 저장
-  - db.go 는 Data access Layer (Interface)의 역할을 할 예정
+  - db.go 는 Data access Layer (Interface)의 역할을 할 예정  
+
+# 8.4 Persisting the Blockchain
+- Blockchain에 Block이 Add될 때 마지막 Block을 체크포인트로 DB에 저장
+  - 이후 이 체크포인트로 마지막 블록을 불러와 확인
