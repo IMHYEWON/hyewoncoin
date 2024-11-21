@@ -1,6 +1,9 @@
 package blockchain
 
 import (
+	"bytes"
+	"encoding/gob"
+	"fmt"
 	"sync"
 
 	"github.com/IMHYEWON/hyewoncoin/8.persistence/db"
@@ -18,6 +21,15 @@ var b *blockchain
 
 // sync.Once : 한번만 실행되는 코드를 실행하기 위한 구조체
 var once sync.Once
+
+func (b *blockchain) restore(data []byte) {
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+
+	// blockchain 구조체에 저장된 데이터를 디코딩
+	// argument should be a pointer to the value
+	// decode will replace the value on the memory address
+	decoder.Decode(b)
+}
 
 func (b *blockchain) persist() {
 	db.SaveBlockchain(utils.ToBytes(b))
@@ -38,10 +50,26 @@ func BlockChain() *blockchain {
 		// 블록체인 인스턴스 생성이 단 한번만 실행되도록 보장
 		once.Do(func() {
 			b = &blockchain{"", 0}
-			b.AddBlock("Genesis")
+
+			// it would be nothing
+			fmt.Printf("NewestHash: %s, Height: %d\n", b.NewestHash, b.Height)
+
+			// DB에 저장된 checkpoint를 가져와서 블록체인에 반영
+			// DB에는 Byte로 저장되어 있으므로 Byte를 다시 blockchain으로 변환
+			checkpoint := db.Checkpoint()
+
+			if checkpoint == nil {
+				// Genesis Block 생성
+				b.AddBlock("Genesis")
+			} else {
+				// restore the blockchain (& decode)
+				b.restore(checkpoint)
+				fmt.Printf("Restored data: %v\n", b)
+			}
 		})
 	}
 
+	fmt.Printf("NewestHash: %s, Height: %d\n", b.NewestHash, b.Height)
 	// 블록체인 인스턴스 반인
 	return b
 }

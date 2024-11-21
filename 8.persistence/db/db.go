@@ -10,6 +10,7 @@ import (
 const dbName = "blockchain.db"
 const dataBucket = "data"     // block의 hash를  저장할 bucket
 const blocksBucket = "blocks" // block의 정보를 저장할 bucket
+const checkpoint = "checkpoint"
 
 var db *bolt.DB
 
@@ -51,8 +52,23 @@ func SaveBlock(hash string, data []byte) {
 func SaveBlockchain(data []byte) {
 	err := DB().Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(dataBucket))
-		err := bucket.Put([]byte("checkpoint"), data)
+		err := bucket.Put([]byte(checkpoint), data)
 		return err
 	})
 	utils.HandleErr(err)
+}
+
+func Checkpoint() []byte {
+	var data []byte
+
+	fmt.Println("Getting Checkpoint...")
+	// DB에서 checkpoint를 가져와서 반환
+	DB().View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(dataBucket))
+		data = bucket.Get([]byte(checkpoint))
+		return nil
+	})
+
+	fmt.Printf("Data: %x\n", data)
+	return data
 }

@@ -23,3 +23,8 @@
 # 8.4 Persisting the Blockchain
 - Blockchain에 Block이 Add될 때 마지막 Block을 체크포인트로 DB에 저장
   - 이후 이 체크포인트로 마지막 블록을 불러와 확인
+
+# 8.5 Restoring the Blockchain
+- Blockchain 객체를 초기화할 때, DB에서 `checkpoint`값을 조회
+  - 체크포인트가 없는 경우 Genesis Block을 생성
+  - 체크포인트가 있는 경우 `checkpoint`(hash를 byte array로 저장된 값)를 decoding해 blockcahin struct로 복구
