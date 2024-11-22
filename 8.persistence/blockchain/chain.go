@@ -15,7 +15,7 @@ type blockchain struct {
 }
 
 // blockchain.go 내부에서만 이 변수에 접근 가능
-var b *blockchain
+var bc *blockchain
 
 // sync.Once : 한번만 실행되는 코드를 실행하기 위한 구조체
 var once sync.Once
@@ -61,13 +61,13 @@ func (b *blockchain) Blocks() []*Block {
 func BlockChain() *blockchain {
 	// nil : 아무것도 없음을 나타내는 특별한 값
 	// b가 nil이면 새로운 blockchain을 생성하여 반환
-	if b == nil {
+	if bc == nil {
 		// 블록체인 인스턴스 생성이 단 한번만 실행되도록 보장
 		once.Do(func() {
-			b = &blockchain{"", 0}
+			bc = &blockchain{"", 0}
 
 			// it would be nothing
-			fmt.Printf("NewestHash: %s, Height: %d\n", b.NewestHash, b.Height)
+			fmt.Printf("NewestHash: %s, Height: %d\n", bc.NewestHash, bc.Height)
 
 			// DB에 저장된 checkpoint를 가져와서 블록체인에 반영
 			// DB에는 Byte로 저장되어 있으므로 Byte를 다시 blockchain으로 변환
@@ -75,16 +75,16 @@ func BlockChain() *blockchain {
 
 			if checkpoint == nil {
 				// Genesis Block 생성
-				b.AddBlock("Genesis")
+				bc.AddBlock("Genesis")
 			} else {
 				// restore the blockchain (& decode)
-				b.restore(checkpoint)
-				fmt.Printf("Restored data: %v\n", b)
+				bc.restore(checkpoint)
+				fmt.Printf("Restored data: %v\n", bc)
 			}
 		})
 	}
 
-	fmt.Printf("NewestHash: %s, Height: %d\n", b.NewestHash, b.Height)
+	fmt.Printf("NewestHash: %s, Height: %d\n", bc.NewestHash, bc.Height)
 	// 블록체인 인스턴스 반인
-	return b
+	return bc
 }
