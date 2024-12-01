@@ -7,9 +7,13 @@ import (
 	"github.com/IMHYEWON/hyewoncoin/9.mining/utils"
 )
 
+const defaultDifficulty = 2
+const difficultyInterval = 5
+
 type blockchain struct {
-	NewestHash string `json:"newestHash"`
-	Height     int    `json:"height"` // 블록의 번호
+	NewestHash        string `json:"newestHash"`
+	Height            int    `json:"height"`            // 블록의 번호
+	CurrentDifficulty int    `json:"currentDifficulty"` // 현재 difficulty
 }
 
 var bc *blockchain
@@ -47,10 +51,25 @@ func (b *blockchain) Blocks() []*Block {
 	return blocks
 }
 
+func (b *blockchain) difficulty() int {
+	// default difficulty (블로체인이 비어있을 때)
+	if b.Height == 0 {
+		return defaultDifficulty
+	} else if b.Height%difficultyInterval == 0 {
+		// 5개의 블록마다 difficulty 재조정
+		// recalculate difficulty
+	} else {
+		return b.CurrentDifficulty
+	}
+
+}
+
 func BlockChain() *blockchain {
 	if bc == nil {
 		once.Do(func() {
-			bc = &blockchain{"", 0}
+			bc = &blockchain{
+				Height: 0,
+			}
 			checkpoint := db.Checkpoint()
 
 			if checkpoint == nil {

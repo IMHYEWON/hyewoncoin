@@ -1,10 +1,10 @@
 package blockchain
 
 import (
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/IMHYEWON/hyewoncoin/9.mining/db"
 	"github.com/IMHYEWON/hyewoncoin/9.mining/utils"
@@ -21,6 +21,7 @@ type Block struct {
 	Height     int    `json:"height"`
 	Difficulty int    `json:"difficulty"`
 	Nonce      int    `json:"nonce"`
+	Timestamp  int    `json:"timestamp"`
 }
 
 func (b *Block) persist() {
@@ -48,10 +49,10 @@ func (b *Block) mine() {
 	target := strings.Repeat("0", difficulty)
 
 	for {
-		blockAsString := fmt.Sprint(b)
-
-		hash := fmt.Sprintf("%x", sha256.Sum256([]byte(blockAsString)))
-		fmt.Printf("Block as String: %s\nHash: %s\nNonce: %d\n\n", blockAsString, hash, b.Nonce)
+		// 언제 블록을 생성했는지 확언
+		b.Timestamp = int(time.Now().Unix())
+		hash := utils.Hash(b)
+		fmt.Printf("Block as String: %s\nHash: %s\nNonce: %d\n\n", fmt.Sprint(b), hash, b.Nonce)
 
 		// hash값이 target값으로 시작하는지 확인
 		if strings.HasPrefix(hash, target) {
@@ -69,7 +70,7 @@ func createBlock(data string, prevHash string, height int) *Block {
 		Hash:       "",
 		PrevHash:   prevHash,
 		Height:     height,
-		Difficulty: difficulty,
+		Difficulty: BlockChain().difficulty(),
 		Nonce:      0,
 	}
 
