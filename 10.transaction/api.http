@@ -1,0 +1,18 @@
+http://localhost:3000/
+
+### Get all blocks
+http://localhost:3000/blocks
+
+### Add a block
+POST http://localhost:3000/blocks
+
+{
+    "message": "Recalculate"
+}
+
+### Get block By ID
+http://localhost:3000/blocks/265a10abd86eebf123361b4f9c3eee9e2cc4bbd0f2b3fe777e001aa8679ad6cf
+
+
+### Get Status of Blockchain
+http://localhost:3000/status
