@@ -82,6 +82,7 @@ func (b *blockchain) difficulty() int {
 	} else if b.Height%difficultyInterval == 0 {
 		// 5개의 블록마다 difficulty 재조정
 		// recalculate difficulty
+		return b.recalculateDifficulty()
 	} else {
 		return b.CurrentDifficulty
 	}

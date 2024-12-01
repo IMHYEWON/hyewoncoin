@@ -46,13 +46,13 @@ func FindBlock(hash string) (*Block, error) {
 }
 
 func (b *Block) mine() {
-	target := strings.Repeat("0", difficulty)
+	target := strings.Repeat("0", b.Difficulty)
 
 	for {
 		// 언제 블록을 생성했는지 확언
 		b.Timestamp = int(time.Now().Unix())
 		hash := utils.Hash(b)
-		fmt.Printf("Block as String: %s\nHash: %s\nNonce: %d\n\n", fmt.Sprint(b), hash, b.Nonce)
+		fmt.Printf("\n[%s]\n Block as String: %s\nTarget:%s\n Hash: %s\nNonce: %d\n\n\n", fmt.Sprint(b.Height), fmt.Sprint(b), target, hash, b.Nonce)
 
 		// hash값이 target값으로 시작하는지 확인
 		if strings.HasPrefix(hash, target) {

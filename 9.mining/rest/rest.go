@@ -53,6 +53,11 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			IgonreMe:    "I'm not going to be in the JSON response",
 		},
 		{
+			URL:         url("/status"),
+			Method:      "GET",
+			Description: "See the Status of the Blockchain",
+		},
+		{
 			URL:         url("/blocks"),
 			Method:      "POST",
 			Description: "Add a block",
@@ -103,6 +108,10 @@ func block(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func status(rw http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(rw).Encode(blockchain.BlockChain())
+}
+
 func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	// 내부적으로 NextServeHTTP 메서드를 호출하여 다음 핸들러로 요청을 전달
 	// API 요청이 들어올 때 getBlock같은 메소드 전에 실행
@@ -125,6 +134,7 @@ func Start(aPort int) {
 
 	router.Use(jsonContentTypeMiddleWare)
 	router.HandleFunc("/", documentation).Methods("GET")
+	router.HandleFunc("/status", status).Methods("GET")
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
 
