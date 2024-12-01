@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/IMHYEWON/hyewoncoin/10.transaction/blockchain"
-	"github.com/IMHYEWON/hyewoncoin/10.transaction/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -28,10 +27,6 @@ type urlDescreption struct {
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"` // omitempty : 값이 비어있으면 JSON에서 생략 (java의 @JsonInclude(Include.NON_NULL)의 역할)
 	IgonreMe    string `json:"-"`                 // JSON으로 변환하지 않음 (java의 @JsonIgnore의 역할)
-}
-
-type addBlockBody struct {
-	Message string
 }
 
 type errorResponse struct {
@@ -80,14 +75,7 @@ func blocks(rw http.ResponseWriter, r *http.Request) {
 		rw.Header().Add("Content-Type", "application/json")
 		json.NewEncoder(rw).Encode(blockchain.BlockChain().Blocks())
 	case "POST":
-		// request body to block struct
-		var addBlockBody addBlockBody
-
-		// json.NewDecoder : JSON 디코딩을 위한 디코더 생성
-		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
-		fmt.Println(addBlockBody)
-
-		blockchain.BlockChain().AddBlock(addBlockBody.Message)
+		blockchain.BlockChain().AddBlock()
 		rw.WriteHeader(http.StatusCreated)
 	}
 
