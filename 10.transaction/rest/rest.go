@@ -125,6 +125,10 @@ func balance(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func mempool(rw http.ResponseWriter, r *http.Request) {
+	utils.HandleErr(json.NewEncoder(rw).Encode(blockchain.Mempool.Txs))
+}
+
 func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	// 내부적으로 NextServeHTTP 메서드를 호출하여 다음 핸들러로 요청을 전달
 	// API 요청이 들어올 때 getBlock같은 메소드 전에 실행
@@ -151,7 +155,7 @@ func Start(aPort int) {
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
 	router.HandleFunc("/balance/{address}", balance).Methods("GET")
-
+	router.HandleFunc("/mempool", mempool)
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }
