@@ -7,9 +7,10 @@ import (
 	"github.com/IMHYEWON/hyewoncoin/9.mining/utils"
 )
 
-const defaultDifficulty = 2
-const difficultyInterval = 5
-
+const defaultDifficulty int = 2  // default difficulty
+const difficultyInterval int = 5 // 5개의 블록마다 difficulty 재조정
+const blockInterval int = 2      // 2분마다 블록이 생성되도록 설정
+const allowedRange int = 2       // 2분의 여유시간
 type blockchain struct {
 	NewestHash        string `json:"newestHash"`
 	Height            int    `json:"height"`            // 블록의 번호
@@ -31,6 +32,7 @@ func (b *blockchain) AddBlock(data string) {
 	block := createBlock(data, b.NewestHash, b.Height+1)
 	b.NewestHash = block.Hash
 	b.Height = block.Height
+	b.CurrentDifficulty = block.Difficulty
 	b.persist()
 }
 
@@ -49,6 +51,28 @@ func (b *blockchain) Blocks() []*Block {
 		}
 	}
 	return blocks
+}
+
+func (b *blockchain) recalculateDifficulty() int {
+	// 5개의 블록마다 시간을 계산 = 5 * 2분 = 10분이 걸렸는지 확인
+	allBlocks := b.Blocks()
+
+	// 가장 최근 블록 (allBlocks 함수에서는 가장 최근 hash부터 이전 블록을 차례로 찾아서 추가하기때문에 0번째 인덱스가 가장 최근 블록)
+	newestBlock := allBlocks[0]
+	lastRecalculatedBlock := allBlocks[difficultyInterval-1]
+
+	actualTime := (newestBlock.Timestamp / 60) - (lastRecalculatedBlock.Timestamp / 60)
+	expectedTime := difficultyInterval * blockInterval // 5 * 2분 = 10분
+
+	if actualTime < (expectedTime - allowedRange) {
+		// 블록이 너무 빠르게 생성되고 있음 (쉬움)> difficulty 높임
+		return b.CurrentDifficulty + 1
+	} else if actualTime > (expectedTime + allowedRange) {
+		// 블록이 너무 느리게 생성되고 있음 (어려움)> difficulty 낮춤
+		return b.CurrentDifficulty - 1
+	}
+	return b.CurrentDifficulty
+
 }
 
 func (b *blockchain) difficulty() int {

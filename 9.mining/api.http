@@ -7,7 +7,7 @@ http://localhost:3000/blocks
 POST http://localhost:3000/blocks
 
 {
-    "message": "Data for my block"
+    "message": "Data for my block 3"
 }
 
 ### Get block By ID
