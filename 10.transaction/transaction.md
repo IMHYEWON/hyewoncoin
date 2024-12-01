@@ -27,3 +27,13 @@
       - it would be reward $10(blockchain)  
     - TxOut[$5(Nico)/$5(Me)]
       - it would be reward $10(miner) --> Coin Base transaction
+
+## 10.2 Coinbase Transaction
+- 채굴자들에게 보상을 주기위해 직접 입력을 찍어냄
+- 이제 블록을 추가하기 위해 String 입력을 받을 필요 없음
+
+## 10.3 Balances
+- `니코`가 블록체인 안에 얼마나 갖고 있는지 확인
+  - a. 블록체인 안에 있는 모든 블록체인 찾기
+  - b. 각 블록에는 거래내역이 있음
+  - c. 거래내역에 있는 `Output`에서 모든 amount를 더해 `Nico`가 얼마나 가지고 있는지 총량을 구함

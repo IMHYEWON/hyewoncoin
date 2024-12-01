@@ -86,7 +86,47 @@ func (b *blockchain) difficulty() int {
 	} else {
 		return b.CurrentDifficulty
 	}
+}
 
+// 거래소의 모든 거래 내역의 출력값 TxOuts를 가져오는 함수
+func (b *blockchain) txOuts() []*TxOut {
+	var txOuts []*TxOut
+	blocks := b.Blocks()
+
+	// 블록체인내의 모든 블록
+	for _, block := range blocks {
+		// 블록내의 모든 트랜잭션
+		for _, tx := range block.Transactions {
+			// 트랜잭션내의 모든 TxOuts
+			txOuts = append(txOuts, tx.TxOuts...)
+		}
+	}
+
+	return txOuts
+}
+
+// 주소에 해당하는 TxOuts를 필터링하는 함수
+func (b *blockchain) TxOutsByAddress(address string) []*TxOut {
+	var ownedTxOuts []*TxOut
+	txOuts := b.txOuts()
+
+	for _, txOut := range txOuts {
+		if txOut.Owner == address {
+			ownedTxOuts = append(ownedTxOuts, txOut)
+		}
+	}
+
+	return ownedTxOuts
+}
+
+// 주소에 해당하는 총 거래량을 계산
+func (b *blockchain) BalanceByAddress(address string) int {
+	var amount int
+	var txOuts = b.TxOutsByAddress(address)
+	for _, txOut := range txOuts {
+		amount += txOut.Amount
+	}
+	return amount
 }
 
 func BlockChain() *blockchain {

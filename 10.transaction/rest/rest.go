@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/IMHYEWON/hyewoncoin/10.transaction/blockchain"
+	"github.com/IMHYEWON/hyewoncoin/10.transaction/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -27,6 +28,11 @@ type urlDescreption struct {
 	Description string `json:"description"`
 	Payload     string `json:"payload,omitempty"` // omitempty : 값이 비어있으면 JSON에서 생략 (java의 @JsonInclude(Include.NON_NULL)의 역할)
 	IgonreMe    string `json:"-"`                 // JSON으로 변환하지 않음 (java의 @JsonIgnore의 역할)
+}
+
+type balanceResponse struct {
+	Address string `json:"address"`
+	Balance int    `json:"balance"`
 }
 
 type errorResponse struct {
@@ -62,6 +68,11 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			URL:         url("/blocks/{height}"),
 			Method:      "GET",
 			Description: "See a block",
+		},
+		{
+			URL:         url("/balance/{address}"),
+			Method:      "GET",
+			Description: "Get TxOuts for an Address",
 		},
 	}
 
@@ -100,6 +111,20 @@ func status(rw http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(rw).Encode(blockchain.BlockChain())
 }
 
+func balance(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	address := vars["address"]
+	total := r.URL.Query().Get("total")
+	switch total {
+	case "true":
+		amount := blockchain.BlockChain().BalanceByAddress(address)
+		utils.HandleErr(json.NewEncoder(rw).Encode(balanceResponse{address, amount}))
+	default:
+		utils.HandleErr(json.NewEncoder(rw).Encode(blockchain.BlockChain().TxOutsByAddress(address)))
+
+	}
+}
+
 func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	// 내부적으로 NextServeHTTP 메서드를 호출하여 다음 핸들러로 요청을 전달
 	// API 요청이 들어올 때 getBlock같은 메소드 전에 실행
@@ -125,6 +150,7 @@ func Start(aPort int) {
 	router.HandleFunc("/status", status).Methods("GET")
 	router.HandleFunc("/blocks", blocks).Methods("GET", "POST")
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
+	router.HandleFunc("/balance/{address}", balance).Methods("GET")
 
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
