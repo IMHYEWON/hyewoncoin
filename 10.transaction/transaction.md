@@ -50,3 +50,21 @@
   - 블록에 거래내역을 저장하는 것
   - 1. 블록을 채굴
   - 2. 거래내역을 블록에 저장
+
+## 10.5-6 Add Tx & Make Tx
+- Add Transaction : Mempool에 트랜잭션을 추가한다. 
+  - 이 때는 From이 중요하지 않음 (지갑으로부터 받을거기 때문에)
+  - 그러나 To는 중요하다 (받는 사람)
+  ``` Go
+  func AddTx(to string, amount int) {
+    tx := makeTx("hyewon", to, amount)
+    m.Txs = append(m.Txs, tx)
+  }
+  ```
+
+- Make Transaction : Mempool에 저장될 트랜잭션을 생성
+  -	transaction을 생성하게 되면 
+    - 보내는 이는 Transaction input을 생성하고
+    - 받는 이는 Transaction output을 생성
+    - 이 둘을 합쳐서 Transaction을 생성
+	- input의 amount와 output의 amount가 같아야 함 

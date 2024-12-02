@@ -74,12 +74,52 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	// 보내는 이는 Transaction input을 생성하고
 	// 받는 이는 Transaction output을 생성
 	// 이 둘을 합쳐서 Transaction을 생성
-	// inout의 amount와 output의 amount가 같아야 함
+	// input의 amount와 output의 amount가 같아야 함
 
 	// a. from 사용자의 잔액을 확인 (transaction의 output으로부터 확인하면 됨)
 	if BlockChain().BalanceByAddress(from) < amount {
 		return nil, errors.New("not enough money")
 	}
+
+	var txIns []*TxIn
+	var txOuts []*TxOut
+	total := 0
+
+	// b. from 사용자의 output을 가져와서 input으로 사용
+	oldTxOuts := BlockChain().TxOutsByAddress(from)
+	for _, txOut := range oldTxOuts {
+		// input의 amount가 output의 amount보다 크거나 같아야 함
+		if total > amount {
+			break
+		}
+		txIn := &TxIn{txOut.Owner, txOut.Amount}
+
+		// c. input내의 금액을 더해서 sum(txIns.amount) >= 거래금액이 될 때까지 txIns에 추가
+		txIns = append(txIns, txIn)
+		total += txIn.Amount
+	}
+
+	// transaction input금액의 합이 거래금액보다 크다면 잔액을 다시 output으로 생성해주어야 함
+	change := total - amount
+	if change != 0 {
+		// d. from 사용자에게 거스름돈을 주는 output을 생성
+		changeTxOut := &TxOut{from, change}
+		txOuts = append(txOuts, changeTxOut)
+	}
+
+	// e. to 사용자에게 거래금액을 주는 output을 생성
+	txOut := &TxOut{to, amount}
+	txOuts = append(txOuts, txOut)
+
+	tx := &Tx{
+		Id:        "",
+		Timestamp: int(time.Now().Unix()),
+		TxIns:     txIns,
+		TxOuts:    txOuts,
+	}
+
+	tx.getId()
+	return tx, nil
 
 }
 

@@ -17,4 +17,16 @@ http://localhost:3000/balance/hyewon
 
 
 ### Get Total Amount by Address
-http://localhost:3000/balance/nico?total=true
+http://localhost:3000/balance/hyewon?total=true
+
+
+### Send Transaction (hyewon -> 'to')
+POST http://localhost:3000/transactions
+
+{
+    "to":"lynn",
+    "amount":80
+}
+
+### Get All Transactions in Mempool
+http://localhost:3000/mempool

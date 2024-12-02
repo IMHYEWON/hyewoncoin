@@ -39,6 +39,11 @@ type errorResponse struct {
 	ErrorMessage string `json:"errorMessage"`
 }
 
+type addTxPayload struct {
+	To     string `json:"to"`
+	Amount int    `json:"amount"`
+}
+
 // String() : fmt.Stringer 인터페이스를 구현하여 String() 메서드를 오버라이딩
 // URLDescreption 타입을 fmt.Stringer 인터페이스로 사용할 수 있음
 func (u urlDescreption) String() string {
@@ -129,6 +134,19 @@ func mempool(rw http.ResponseWriter, r *http.Request) {
 	utils.HandleErr(json.NewEncoder(rw).Encode(blockchain.Mempool.Txs))
 }
 
+func transactions(rw http.ResponseWriter, r *http.Request) {
+	var payload addTxPayload
+	utils.HandleErr(json.NewDecoder(r.Body).Decode(&payload))
+
+	// AddTx : Mempool에 트랜잭션 추가
+	err := blockchain.Mempool.AddTx(payload.To, payload.Amount)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(rw).Encode(errorResponse{"not enough funds"})
+	}
+	rw.WriteHeader(http.StatusCreated)
+}
+
 func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	// 내부적으로 NextServeHTTP 메서드를 호출하여 다음 핸들러로 요청을 전달
 	// API 요청이 들어올 때 getBlock같은 메소드 전에 실행
@@ -156,6 +174,7 @@ func Start(aPort int) {
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
 	router.HandleFunc("/balance/{address}", balance).Methods("GET")
 	router.HandleFunc("/mempool", mempool)
+	router.HandleFunc("/transactions", transactions)
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }
