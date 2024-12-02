@@ -67,13 +67,11 @@ func createBlock(prevHash string, height int) *Block {
 		Height:     height,
 		Difficulty: BlockChain().difficulty(),
 		Nonce:      0,
-
-		// 코인베이스 트랜잭션 생성
-		Transactions: []*Tx{makeCoinbaseTx("hyewon")},
 	}
 
 	// 블록을 마이닝하고 저장
 	block.mine()
+	block.Transactions = Mempool.TxToConfirm()
 	block.persist()
 
 	return block

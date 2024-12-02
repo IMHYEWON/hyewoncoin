@@ -134,3 +134,20 @@ func (m *mempool) AddTx(to string, amount int) error {
 	m.Txs = append(m.Txs, tx)
 	return nil
 }
+
+// 이 함수는 블록이 tranasaction을 추가할 때 호출
+// 이 때, Mempool에 있는 transaction을 확인하고, Mempool에서 비워줌
+// 이 작업은 miner가 새로운 블록을 생성할 때 호출
+func (m *mempool) TxToConfirm() []*Tx {
+	coinbase := makeCoinbaseTx("hyewon")
+
+	// m.Txs : Mempool에 있는 transaction
+	txs := m.Txs
+
+	// coinbase transaction을 추가
+	txs = append(txs, coinbase)
+
+	// Mempool 비우기
+	m.Txs = nil
+	return txs
+}

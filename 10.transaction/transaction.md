@@ -68,3 +68,12 @@
     - 받는 이는 Transaction output을 생성
     - 이 둘을 합쳐서 Transaction을 생성
 	- input의 amount와 output의 amount가 같아야 함 
+
+
+## 10.7 Confirm Transactions
+- 이제 블록을 생성할 때 마다 mempool에 있는 거래내역을 모두 가져와서 Confirm할 예정
+- 블록이 채굴될 때, 거래내역을 확인해서 Confirm
+- 각 잔고가 업데이트 되나 문제가 있음!
+- Mempool에 들어갈때는 보내는이의 잔고를 비교하지만
+- Confirm할때는 검증없이 모두 등록해버림 
+  - Confirm할 시점에는 이미 보내는 이의 잔고가 달라질 수도 있는 가능성
