@@ -88,41 +88,16 @@ func (b *blockchain) difficulty() int {
 	}
 }
 
-// 거래소의 모든 거래 내역의 출력값 TxOuts를 가져오는 함수
-func (b *blockchain) txOuts() []*TxOut {
-	var txOuts []*TxOut
-	blocks := b.Blocks()
+// 어떤 Transaction Output이 Input으로 사용되었는지 확인
+func (b *blockchain) UnspentTxOutsByAddress(address string) []*TxOut {
 
-	// 블록체인내의 모든 블록
-	for _, block := range blocks {
-		// 블록내의 모든 트랜잭션
-		for _, tx := range block.Transactions {
-			// 트랜잭션내의 모든 TxOuts
-			txOuts = append(txOuts, tx.TxOuts...)
-		}
-	}
-
-	return txOuts
-}
-
-// 주소에 해당하는 TxOuts를 필터링하는 함수
-func (b *blockchain) TxOutsByAddress(address string) []*TxOut {
-	var ownedTxOuts []*TxOut
-	txOuts := b.txOuts()
-
-	for _, txOut := range txOuts {
-		if txOut.Owner == address {
-			ownedTxOuts = append(ownedTxOuts, txOut)
-		}
-	}
-
-	return ownedTxOuts
+	return nil
 }
 
 // 주소에 해당하는 총 거래량을 계산
 func (b *blockchain) BalanceByAddress(address string) int {
 	var amount int
-	var txOuts = b.TxOutsByAddress(address)
+	var txOuts = b.UnspentTxOutsByAddress(address)
 	for _, txOut := range txOuts {
 		amount += txOut.Amount
 	}

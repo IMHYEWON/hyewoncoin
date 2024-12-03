@@ -127,10 +127,35 @@ from : hyewon -> to : lynn (30)
 **Transaction Confirm**
 1. (외부) Transaction 송금 요청
 2. Mempool에 Transaction 추가
-  1. Transaction 생성 (from : txIn, To : txOut) -> Tx
-  2. Mempool에 트랜잭션 Append
+	1. Transaction 생성 (from : txIn, To : txOut) -> Tx
+	2. Mempool에 트랜잭션 Append
 3. 블록 생성
-  1. 마이닝 이후 Transaction Confirm
-    1. coinbase 트랜잭션 생성 (보상)
-    2. Mempool에 있는 트랜잭션에 Append
-    3. Mempool 비우기
+	1. 마이닝 이후 Transaction Confirm
+    		1. coinbase 트랜잭션 생성 (보상)
+    		2. Mempool에 있는 트랜잭션에 Append
+    		3. Mempool 비우기
+
+
+## 10.8 uTxOuts
+- 위 코드의 문제점
+  - 이 사용자가 이 txOut을 이미 사용했는지 확인하지 않고 Confirm
+  - 이미 트랜잭션에 사용된 txOut이 다시 또 Mempool에 넣음
+  - => 어떻게 Mempool-tx에 있는 txOut이 이미 사용됐는지 알지?
+
+- TOBE
+```
+Tx1
+  TxIn[COINBASE]
+  TxOut[$5(you)] <------ Spent TxOut : 아래 트랜잭션에서 Input으로서 참조했기 때문
+
+Tx2
+  TxIn[Tx1.TxOuts[0]] // It should be connected to previous Output *!!!! It'd be a reference to an Old Output 
+  TxOut[$5(me)] <---- uTxOut (UnSpent Transaction Output) <----- 아래 Tx3이 생기면서 Spent
+
+Tx3
+  TxIns[Tx2.TxOuts[0]] 
+  TxOuts[$3(you), $2(me)] <---- uTxOUt X 2 (UTXO) : 잔액 계산시에 보는 곳
+``
+
+- 새로운 트랜잭션의 Input은 이전 트랜잭션의 Output을 참조한다
+  - 누군가가 트랜잭션 OUTPUT을 실제로 가지고 있는지 여부를 확인할 수 있음
