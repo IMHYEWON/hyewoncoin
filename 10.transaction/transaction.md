@@ -70,11 +70,50 @@
 	- input의 amount와 output의 amount가 같아야 함 
   a. from 사용자의 잔액을 확인 (transaction의 output으로부터 확인하면 됨) 
   b. from 사용자의 output을 가져와서 input으로 사용 
+  ``` Go
+	oldTxOuts := BlockChain().TxOutsByAddress(from)
+  
+	for _, txOut := range oldTxOuts {
+		// input의 amount가 output의 amount보다 크거나 같아야 함
+		if total > amount {
+			break
+		}
+		txIn := &TxIn{txOut.Owner, txOut.Amount}
+
+		// c. input내의 금액을 더해서 sum(txIns.amount) >= 거래금액이 될 때까지 txIns에 추가
+		txIns = append(txIns, txIn)
+		total += txIn.Amount
+	}
+  ```
   c. input내의 금액을 더해서 sum(txIns.amount) >= 거래금액이 될 때까지 txIns에 추가 
   d. transaction input금액의 합이 거래금액보다 크다면 잔액을 다시 output으로 생성해주어야 함 -> from 사용자에게 거스름돈을 주는 output을 생성 
   e. to 사용자에게 거래금액을 주는 output을 생성
 
-
+from : hyewon -> to : lynn (30)
+```
+[
+  {
+    "id": "7e1d1eeadc1a1756fc52710d5d7f0c713c0edbf81d20a9ef54de26d8e736e4e8",
+    "timestamp": 1733231743,
+    "txIns": [
+      {
+        "Owner": "hyewon",
+        "Amount": 50
+      }
+    ],
+    "txOuts": [
+      {
+        "Owner": "hyewon",
+        "Amount": 20
+      },
+      {
+        "Owner": "lynn",
+        "Amount": 30
+      }
+    ]
+  }
+]
+```
 
 ## 10.7 Confirm Transactions
 - 이제 블록을 생성할 때 마다 mempool에 있는 거래내역을 모두 가져와서 Confirm할 예정
@@ -83,6 +122,7 @@
 - Mempool에 들어갈때는 보내는이의 잔고를 비교하지만
 - Confirm할때는 검증없이 모두 등록해버림 
   - Confirm할 시점에는 이미 보내는 이의 잔고가 달라질 수도 있는 가능성
+
 
 **Transaction Confirm**
 1. (외부) Transaction 송금 요청
