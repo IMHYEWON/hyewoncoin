@@ -24,13 +24,20 @@ type Tx struct {
 }
 
 type TxIn struct {
-	TxId  string `json:"txId"`  // find the previous transaction Output
+	TxId  string `json:"txId"`  // (어떤 transacgion이 이 input을 생성한 output을 가지고 있는지 알려준다)find the previous transaction Output
 	Index int    `json:"index"` // UTXO는 같은 (N개이기 때문에) TxId를 가지고 있을 수 있기 때문에 Index로 구분
 	Owner string `json:"owner"`
 }
 
 type TxOut struct {
 	Owner  string `json:"owner"`
+	Amount int    `json:"amount"`
+}
+
+// The transaction output that has not been used yet
+type UTxOut struct {
+	TxId   string `json:"txId"`
+	Index  int    `json:"index"`
 	Amount int    `json:"amount"`
 }
 

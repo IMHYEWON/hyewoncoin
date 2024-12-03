@@ -89,9 +89,44 @@ func (b *blockchain) difficulty() int {
 }
 
 // 어떤 Transaction Output이 Input으로 사용되었는지 확인
-func (b *blockchain) UnspentTxOutsByAddress(address string) []*TxOut {
+func (b *blockchain) UnspentTxOutsByAddress(address string) []*UTxOut {
+	// input을 생성하면 각각의 input은 항상 유니크한 transaction에서 output을 가지고 옴
+	var uTxOuts []*UTxOut
+	creatorTxs := make(map[string]bool) // key: TxId(string), value: TxOut의 index(bool로 표시)
 
-	return nil
+	// 모든 블록을 가져옴
+	for _, block := range b.Blocks() {
+		// 모든 트랜잭션을 가져옴
+		for _, tx := range block.Transactions {
+
+			// 1. 해당 주소에 해당하는 Transaction의 목록에서 사용된 Output을 찾기위해 Map에 마킹해둠
+			// (어떻게 ? Transaction의 Input에 포함되어있다는 것은 이미 사용된 Output이라는 뜻이기에, 이 Input의 부모 Transaction-Output을 확인해서)
+			// 모든 TxIn을 가져옴
+			for _, input := range tx.TxIns {
+				// 이 주소에 속한 input을 찾음 -> 각 input은 부모 transaction의 output을 가지고 있음
+				if input.Owner == address {
+					creatorTxs[input.TxId] = true
+				}
+			}
+
+			// 2. UTXO 생성
+			// 주소에 해당하는 모든 TxOut을 가져와서, 마킹된 Transaction을 제외한 나머지를 모두 추가
+			for index, output := range tx.TxOuts {
+				if output.Owner == address {
+					_, ok := creatorTxs[tx.Id]
+					// input으로 사용된 output이 아닌 output이라면 아직 사용되지 않은 output
+					// --> UTXO(Unspent Transaction Output)
+					// txOut중, input으로 참조되지 않은(=아직 사용되지 않은) output만 가져옴
+					if !ok {
+						// UTXO객체를 생성해서 uTxOuts 슬라이스에 append
+						uTxOuts = append(uTxOuts, &UTxOut{tx.Id, index, output.Amount})
+					}
+				}
+			}
+		}
+	}
+
+	return uTxOuts
 }
 
 // 주소에 해당하는 총 거래량을 계산
