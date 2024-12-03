@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"errors"
 	"time"
 
 	"github.com/IMHYEWON/hyewoncoin/10.transaction/utils"
@@ -75,6 +76,60 @@ func makeCoinbaseTx(address string) *Tx {
 
 func makeTx(from, to string, amount int) (*Tx, error) {
 
+	if BlockChain().BalanceByAddress(from) < amount {
+		return nil, errors.New("not enough money")
+	}
+
+	var txIns []*TxIn
+	var txOuts []*TxOut
+
+	total := 0
+
+	// from 주소에 해당하는 모든 UTXO를 가져옴
+	uTxOuts := BlockChain().UnspentTxOutsByAddress(from)
+
+	for _, uTxOut := range uTxOuts {
+		if total >= amount {
+			break
+		}
+		// 1. 새로운 TxIn 생성
+		txIn := &TxIn{
+			TxId:  uTxOut.TxId,
+			Index: uTxOut.Index,
+			Owner: from,
+		}
+		txIns = append(txIns, txIn)
+		total += uTxOut.Amount
+	}
+
+	// 2. 새로운 TxOut 생성
+	// 2-1. change를 받아야 하는 경우 -> 새로운 TxOut 생성
+	// from -> from : change
+	if change := total - amount; change != 0 {
+		changeTxOut := &TxOut{
+			Owner:  from,
+			Amount: change,
+		}
+		txOuts = append(txOuts, changeTxOut)
+	}
+
+	// 2-2. to에게 보내는 경우 -> 새로운 TxOut 생성
+	// from -> to : amount
+	txOut := &TxOut{
+		Owner:  to,
+		Amount: amount,
+	}
+	txOuts = append(txOuts, txOut)
+
+	// 3. 새로운 Tx 생성
+	tx := &Tx{
+		Id:        "",
+		Timestamp: int(time.Now().Unix()),
+		TxIns:     txIns,
+		TxOuts:    txOuts,
+	}
+	tx.getId()
+	return tx, nil
 }
 
 // Mempool에 트랜잭션 추가 (트랜잭션을 생성하지는 않음
