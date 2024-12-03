@@ -68,6 +68,12 @@
     - 받는 이는 Transaction output을 생성
     - 이 둘을 합쳐서 Transaction을 생성
 	- input의 amount와 output의 amount가 같아야 함 
+  a. from 사용자의 잔액을 확인 (transaction의 output으로부터 확인하면 됨) 
+  b. from 사용자의 output을 가져와서 input으로 사용 
+  c. input내의 금액을 더해서 sum(txIns.amount) >= 거래금액이 될 때까지 txIns에 추가 
+  d. transaction input금액의 합이 거래금액보다 크다면 잔액을 다시 output으로 생성해주어야 함 -> from 사용자에게 거스름돈을 주는 output을 생성 
+  e. to 사용자에게 거래금액을 주는 output을 생성
+
 
 
 ## 10.7 Confirm Transactions
@@ -77,3 +83,14 @@
 - Mempool에 들어갈때는 보내는이의 잔고를 비교하지만
 - Confirm할때는 검증없이 모두 등록해버림 
   - Confirm할 시점에는 이미 보내는 이의 잔고가 달라질 수도 있는 가능성
+
+**Transaction Confirm**
+1. (외부) Transaction 송금 요청
+2. Mempool에 Transaction 추가
+  1. Transaction 생성 (from : txIn, To : txOut) -> Tx
+  2. Mempool에 트랜잭션 Append
+3. 블록 생성
+  1. 마이닝 이후 Transaction Confirm
+    1. coinbase 트랜잭션 생성 (보상)
+    2. Mempool에 있는 트랜잭션에 Append
+    3. Mempool 비우기

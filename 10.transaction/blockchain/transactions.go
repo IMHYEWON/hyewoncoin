@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/IMHYEWON/hyewoncoin/10.transaction/utils"
@@ -118,6 +119,8 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 		TxOuts:    txOuts,
 	}
 
+	fmt.Print("======= Transaction: =======\n")
+	fmt.Printf("%v\n", tx)
 	tx.getId()
 	return tx, nil
 
