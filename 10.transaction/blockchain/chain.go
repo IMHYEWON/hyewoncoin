@@ -29,7 +29,7 @@ func persist(b *blockchain) {
 }
 
 func (b *blockchain) AddBlock() {
-	block := createBlock(b.NewestHash, b.Height+1)
+	block := createBlock(b.NewestHash, b.Height+1, getDifficulty(b))
 	b.NewestHash = block.Hash
 	b.Height = block.Height
 	b.CurrentDifficulty = block.Difficulty
@@ -75,7 +75,7 @@ func recalculateDifficulty(b *blockchain) int {
 
 }
 
-func difficulty(b *blockchain) int {
+func getDifficulty(b *blockchain) int {
 	// default difficulty (블로체인이 비어있을 때)
 	if b.Height == 0 {
 		return defaultDifficulty
@@ -145,20 +145,18 @@ func BalanceByAddress(address string, b *blockchain) int {
 }
 
 func BlockChain() *blockchain {
-	if bc == nil {
-		once.Do(func() {
-			bc = &blockchain{
-				Height: 0,
-			}
-			checkpoint := db.Checkpoint()
+	once.Do(func() {
+		bc = &blockchain{
+			Height: 0,
+		}
+		checkpoint := db.Checkpoint()
 
-			if checkpoint == nil {
-				bc.AddBlock()
-			} else {
-				bc.restore(checkpoint)
-			}
-		})
-	}
+		if checkpoint == nil {
+			bc.AddBlock()
+		} else {
+			bc.restore(checkpoint)
+		}
+	})
 
 	return bc
 }
