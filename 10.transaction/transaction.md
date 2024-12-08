@@ -178,3 +178,8 @@ Tx3
 - 새로운 transaction을 생성하기 전에 UTXO가 이미 mempool에 올라가 있는지 확인해야 됨
   - 이미 Mempool에 있는 트랜잭션은 확정되기전까진 사용할 수 없음
 
+## 10.12 Refactoring
+- Reciever Function, Method vs Function
+  - Reciever Function, Method는 Go(OOP)에서 struct(java의 class)내부에 있는 함수
+  - What should be Method and What Should be just a function?
+    - **If your function is going to mutate(change) the struct, It shoulld be a method **

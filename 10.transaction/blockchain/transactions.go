@@ -49,9 +49,14 @@ func (t *Tx) getId() {
 // mempool에 있는 transaction의 input들 중에 uTxOut(트랜잭션에 추가하려는 TxOut 파람)이 있는지 확인
 func isOnMempool(uTxOut *UTxOut) bool {
 	exists := false
+
+Outer: // label, break Outer로 사용
 	for _, tx := range Mempool.Txs {
 		for _, input := range tx.TxIns {
-			exists = input.TxId == uTxOut.TxId && input.Index == uTxOut.Index
+			if input.TxId == uTxOut.TxId && input.Index == uTxOut.Index {
+				exists = true
+				break Outer
+			}
 		}
 	}
 
@@ -88,7 +93,7 @@ func makeCoinbaseTx(address string) *Tx {
 
 func makeTx(from, to string, amount int) (*Tx, error) {
 
-	if BlockChain().BalanceByAddress(from) < amount {
+	if BalanceByAddress(from, BlockChain()) < amount {
 		return nil, errors.New("not enough money")
 	}
 
@@ -98,7 +103,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	total := 0
 
 	// from 주소에 해당하는 모든 UTXO를 가져옴
-	uTxOuts := BlockChain().UnspentTxOutsByAddress(from)
+	uTxOuts := UnspentTxOutsByAddress(from, BlockChain())
 
 	for _, uTxOut := range uTxOuts {
 		if total >= amount {

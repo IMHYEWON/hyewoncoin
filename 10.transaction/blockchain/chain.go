@@ -24,7 +24,7 @@ func (b *blockchain) restore(data []byte) {
 	utils.FromBytes(b, data)
 }
 
-func (b *blockchain) persist() {
+func persist(b *blockchain) {
 	db.SaveBlockchain(utils.ToBytes(b))
 }
 
@@ -33,10 +33,10 @@ func (b *blockchain) AddBlock() {
 	b.NewestHash = block.Hash
 	b.Height = block.Height
 	b.CurrentDifficulty = block.Difficulty
-	b.persist()
+	persist(b)
 }
 
-func (b *blockchain) Blocks() []*Block {
+func Blocks(b *blockchain) []*Block {
 	var blocks []*Block
 	hashCursor := b.NewestHash
 
@@ -53,9 +53,9 @@ func (b *blockchain) Blocks() []*Block {
 	return blocks
 }
 
-func (b *blockchain) recalculateDifficulty() int {
+func recalculateDifficulty(b *blockchain) int {
 	// 5개의 블록마다 시간을 계산 = 5 * 2분 = 10분이 걸렸는지 확인
-	allBlocks := b.Blocks()
+	allBlocks := Blocks(b)
 
 	// 가장 최근 블록 (allBlocks 함수에서는 가장 최근 hash부터 이전 블록을 차례로 찾아서 추가하기때문에 0번째 인덱스가 가장 최근 블록)
 	newestBlock := allBlocks[0]
@@ -75,27 +75,27 @@ func (b *blockchain) recalculateDifficulty() int {
 
 }
 
-func (b *blockchain) difficulty() int {
+func difficulty(b *blockchain) int {
 	// default difficulty (블로체인이 비어있을 때)
 	if b.Height == 0 {
 		return defaultDifficulty
 	} else if b.Height%difficultyInterval == 0 {
 		// 5개의 블록마다 difficulty 재조정
 		// recalculate difficulty
-		return b.recalculateDifficulty()
+		return recalculateDifficulty(b)
 	} else {
 		return b.CurrentDifficulty
 	}
 }
 
 // 어떤 Transaction Output이 Input으로 사용되었는지 확인
-func (b *blockchain) UnspentTxOutsByAddress(address string) []*UTxOut {
+func UnspentTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 	// input을 생성하면 각각의 input은 항상 유니크한 transaction에서 output을 가지고 옴
 	var uTxOuts []*UTxOut
 	creatorTxs := make(map[string]bool) // key: TxId(string), value: TxOut의 index(bool로 표시)
 
 	// 모든 블록을 가져옴
-	for _, block := range b.Blocks() {
+	for _, block := range Blocks(b) {
 		// 모든 트랜잭션을 가져옴
 		for _, tx := range block.Transactions {
 
@@ -135,9 +135,9 @@ func (b *blockchain) UnspentTxOutsByAddress(address string) []*UTxOut {
 }
 
 // 주소에 해당하는 총 거래량을 계산
-func (b *blockchain) BalanceByAddress(address string) int {
+func BalanceByAddress(address string, b *blockchain) int {
 	var amount int
-	var txOuts = b.UnspentTxOutsByAddress(address)
+	var txOuts = UnspentTxOutsByAddress(address, b)
 	for _, txOut := range txOuts {
 		amount += txOut.Amount
 	}
