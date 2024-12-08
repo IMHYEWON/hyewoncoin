@@ -7,7 +7,7 @@ http://localhost:3000/blocks
 POST http://localhost:3000/blocks
 
 ### Get block By ID
-http://localhost:3000/blocks/265a10abd86eebf123361b4f9c3eee9e2cc4bbd0f2b3fe777e001aa8679ad6cf
+http://localhost:3000/blocks/b251fa684228107b7bdc2e92fbcd3676fd7e28de2a9aa789232ae83a1d76cccc
 
 ### Get Status of Blockchain
 http://localhost:3000/status
@@ -17,7 +17,7 @@ http://localhost:3000/balance/hyewon
 
 
 ### Get Total Amount by Address
-http://localhost:3000/balance/hyewon?total=true
+http://localhost:3000/balance/lynn?total=true
 
 
 ### Send Transaction (hyewon -> 'to')
@@ -25,7 +25,7 @@ POST http://localhost:3000/transactions
 
 {
     "to":"lynn",
-    "amount":30
+    "amount":10
 }
 
 ### Get All Transactions in Mempool

@@ -155,13 +155,24 @@ Tx2
 Tx3
   TxIns[Tx2.TxOuts[0]] 
   TxOuts[$3(you), $2(me)] <---- uTxOUt X 2 (UTXO) : 잔액 계산시에 보는 곳
-``
+```
 
 - 새로운 트랜잭션의 Input은 이전 트랜잭션의 Output을 참조한다
   - 누군가가 트랜잭션 OUTPUT을 실제로 가지고 있는지 여부를 확인할 수 있음
 
 
-## 10.9
+## 10.9 UTxOutsByAddress
 - UTxOutsByAddress 함수 구현
   - 아직 input으로부터 사용되지 않은 (참조되지 않은) Output만을 확인
    
+## 10.10 makeTx Part 2
+- a. from의 잔액이 송금하려는 금액보다 적다면 리턴
+- b. UTxOutsByAddress로 UTXO를 가지고 옴
+  - 이 UTXO로부터 txIn을 만듬
+  - txIn들의 금액을 더한게 송금 amount보다 커지면 break
+  - 이 경우 change TxOut도 생성함
+- c. TxOut 생성
+- 어떤 TxOut이 이미 Mempool에 올라와 있다면 더이상 올라갈수 없어야함 -> 10.11
+
+## 10.11 isOnMempool
+- 
