@@ -119,7 +119,12 @@ func (b *blockchain) UnspentTxOutsByAddress(address string) []*UTxOut {
 					// txOut중, input으로 참조되지 않은(=아직 사용되지 않은) output만 가져옴
 					if !ok {
 						// UTXO객체를 생성해서 uTxOuts 슬라이스에 append
-						uTxOuts = append(uTxOuts, &UTxOut{tx.Id, index, output.Amount})
+						uTxOut := &UTxOut{tx.Id, index, output.Amount}
+
+						// 이 UTXO가 mempool에 있는지 확인
+						if !isOnMempool(uTxOut) {
+							uTxOuts = append(uTxOuts, uTxOut)
+						}
 					}
 				}
 			}

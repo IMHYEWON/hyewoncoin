@@ -46,6 +46,18 @@ func (t *Tx) getId() {
 	t.Id = utils.Hash(t)
 }
 
+// mempool에 있는 transaction의 input들 중에 uTxOut(트랜잭션에 추가하려는 TxOut 파람)이 있는지 확인
+func isOnMempool(uTxOut *UTxOut) bool {
+	exists := false
+	for _, tx := range Mempool.Txs {
+		for _, input := range tx.TxIns {
+			exists = input.TxId == uTxOut.TxId && input.Index == uTxOut.Index
+		}
+	}
+
+	return exists
+}
+
 func makeCoinbaseTx(address string) *Tx {
 	// 채굴자에게 보상을 주기 위한 트랜잭션
 	txIns := []*TxIn{
