@@ -12,3 +12,8 @@
 
 4. Verify
     - `("fseefqedsjcnkjnca" + 'Signature' + public Key) -> True/false`
+
+
+## 11.2 Signing Message 
+
+## 11.2 Verifying Message

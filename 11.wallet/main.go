@@ -1,7 +1,9 @@
 package main
 
-import "github.com/IMHYEWON/hyewoncoin/11.wallet/cli"
+import (
+	"github.com/IMHYEWON/hyewoncoin/11.wallet/wallet"
+)
 
 func main() {
-	cli.Start()
+	wallet.Start()
 }
