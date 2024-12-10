@@ -1,6 +1,7 @@
 package wallet
 
 import (
+	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
@@ -16,16 +17,18 @@ const hashedMessage string = "1c5863cd55b5a4413fd59f054af57ba3c75c0698b3851d70f9
 
 func Start() {
 
-	// pricateKey가 hex 포맷이 맞는지 먼저 체크 (아무도 이 키를 조작하지 않았는지 확인하기 위해 인코딩해서 확인)
+	// 1. PrivateKey 복원
+	// 1-A. pricateKey가 hex 포맷이 맞는지 먼저 체크 (아무도 이 키를 조작하지 않았는지 확인하기 위해 인코딩해서 확인)
 	privBytes, err := hex.DecodeString(privateKey)
 	utils.HandleErr(err)
 
-	// 비공개키를 x509.ParseECPrivateKey() 함수로 복원
+	// 1-B. 비공개키를 x509.ParseECPrivateKey() 함수로 복원
 	restoredKey, err := x509.ParseECPrivateKey(privBytes)
 	utils.HandleErr(err)
 
 	fmt.Println(restoredKey)
 
+	// 2. Transaction 검증 (서명 검증)
 	// signature :
 	// 	r, s, err := ecdsa.Sign(rand.Reader, privateKey, hashAsBytes)
 	// 	signature := append(r.Bytes(), s.Bytes()...)
@@ -37,6 +40,7 @@ func Start() {
 	sBytes := sigBytes[len(sigBytes)/2:]
 	fmt.Printf("%d\n\n%d\n\n%d\n\n", sigBytes, rBytes, sBytes)
 
+	// 2-A. r, s를 big.Int로 변환 (서명 복원)
 	var bigR, bigS = big.Int{}, big.Int{}
 	bigR.SetBytes(rBytes)
 	bigS.SetBytes(sBytes)
@@ -47,5 +51,18 @@ func Start() {
 	{false [6004284127122780075 4784549910280665269 13922133424419168425 11749613648874888869]}
 	{false [17060734334020532083 17041142344486901975 2008679567493756638 14372594831782399184]}
 	*/
+
+	// 2-B. 서명된 해시메시지를 DecodeString() 함수로 바이트로 변환
+	hashBytes, err := hex.DecodeString(hashedMessage)
+	utils.HandleErr(err)
+
+	// 3. 공개키를 이용해 검증 (서명이 유효한지 확인)
+	/*
+		Verify verifies the signature in r, s of hash using the public key, pub.
+		Its return value records whether the signature is valid.
+		Most applications should use VerifyASN1 instead of dealing directly with r, s.
+	*/
+	ok := ecdsa.Verify(&restoredKey.PublicKey, hashBytes, &bigR, &bigS)
+	fmt.Println(ok) // true
 
 }
