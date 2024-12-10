@@ -16,4 +16,10 @@
 
 ## 11.2 Signing Message 
 
-## 11.2 Verifying Message
+## 11.3 Verifying Message
+
+## 11.4 Restoring Message
+- 키 복원 프로세스
+    1. Private Key 복구
+    2. Private Key로 Public Key 복구
+    3. Public Key로 Signature 검증
