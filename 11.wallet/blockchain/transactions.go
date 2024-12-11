@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/IMHYEWON/hyewoncoin/11.wallet/utils"
+	"github.com/IMHYEWON/hyewoncoin/11.wallet/wallet"
 )
 
 const minerReward int = 50
@@ -153,7 +154,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 // 누구에게서 받는지는 중요하지 않음, 누구에게 보내는지만 중요 (지갑으로부터 받을거기 때문)
 // REST API 에서 호출할 함수
 func (m *mempool) AddTx(to string, amount int) error {
-	tx, err := makeTx("hyewon", to, amount)
+	tx, err := makeTx(wallet.Wallet().Address, to, amount)
 	if err != nil {
 		return err
 	}
@@ -165,7 +166,7 @@ func (m *mempool) AddTx(to string, amount int) error {
 // 이 때, Mempool에 있는 transaction을 확인하고, Mempool에서 비워줌
 // 이 작업은 miner가 새로운 블록을 생성할 때 호출
 func (m *mempool) TxToConfirm() []*Tx {
-	coinbase := makeCoinbaseTx("hyewon")
+	coinbase := makeCoinbaseTx(wallet.Wallet().Address)
 
 	// m.Txs : Mempool에 있는 transaction
 	txs := m.Txs

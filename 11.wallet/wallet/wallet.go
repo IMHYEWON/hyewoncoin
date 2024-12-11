@@ -5,6 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
+	"encoding/hex"
 	"fmt"
 	"os"
 
@@ -15,7 +16,7 @@ const walletFileName string = "hyewoncoin.wallet"
 
 type wallet struct {
 	privateKey *ecdsa.PrivateKey
-	address    string // it will be a PublicKey
+	Address    string // it will be a PublicKey
 }
 
 var w *wallet
@@ -59,6 +60,38 @@ func restoreKey() *ecdsa.PrivateKey {
 	return key
 }
 
+// private Key로 부터 address를 생성
+func addressFromPrivateKey(key *ecdsa.PrivateKey) string {
+	x := key.X.Bytes()
+	y := key.Y.Bytes()
+	fmt.Printf("length of X: %d \n length of Y: %d", len(x), len(y))
+
+	z := append(x, y...)
+	fmt.Println("z(address): ", z)
+
+	return fmt.Sprintf("%x", z)
+}
+
+// sign : payload를 받아서 private key로 sign한 결과를 리턴
+// payload : transction 데이터
+// When we sign a transaction, anything has not been encrypted (we dont change the data)
+// We just create a signature for the data
+// It means that we can verify the data with the signature
+// So When we verify the data, we should get the 'data' and the 'signature' both
+func sign(payload string, w *wallet) string {
+	payloadAsBytes, err := hex.DecodeString(payload)
+	utils.HandleErr(err)
+	r, s, err := ecdsa.Sign(rand.Reader, w.privateKey, payloadAsBytes)
+	utils.HandleErr(err)
+	signature := append(r.Bytes(), s.Bytes()...)
+	return fmt.Sprintf("%x", signature)
+}
+
+func verify(signature string, payload string, publicKey string) bool {
+	// we should take the signature and turn it into r and s
+	// we should take the public key and turn it into x and y
+}
+
 func Wallet() *wallet {
 	if w == nil {
 		w = &wallet{}
@@ -74,7 +107,7 @@ func Wallet() *wallet {
 			persistKey(key)
 			w.privateKey = key
 		}
-		w.address = addressFromPrivateKey(w.privateKey)
+		w.Address = addressFromPrivateKey(w.privateKey)
 	}
 	return w
 }
