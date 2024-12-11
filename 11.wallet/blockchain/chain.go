@@ -88,6 +88,25 @@ func getDifficulty(b *blockchain) int {
 	}
 }
 
+// 모든 (블록체인에 있는) Transaction을 가져오는 함수
+func Txs(b *blockchain) []*Tx {
+	var txs []*Tx
+	for _, block := range Blocks(b) {
+		txs = append(txs, block.Transactions...)
+	}
+	return txs
+}
+
+// transaction ID로 Transaction을 찾는 함수
+func FindTx(b *blockchain, targetTxId string) *Tx {
+	for _, tx := range Txs(b) {
+		if tx.Id == targetTxId {
+			return tx
+		}
+	}
+	return nil
+}
+
 // 어떤 Transaction Output이 Input으로 사용되었는지 확인
 func UnspentTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 	// input을 생성하면 각각의 input은 항상 유니크한 transaction에서 output을 가지고 옴
@@ -104,7 +123,7 @@ func UnspentTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 			// 모든 TxIn을 가져옴
 			for _, input := range tx.TxIns {
 				// 이 주소에 속한 input을 찾음 -> 각 input은 부모 transaction의 output을 가지고 있음
-				if input.Owner == address {
+				if input.Signature == address {
 					creatorTxs[input.TxId] = true
 				}
 			}
@@ -112,7 +131,7 @@ func UnspentTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 			// 2. UTXO 생성
 			// 주소에 해당하는 모든 TxOut을 가져와서, 마킹된 Transaction을 제외한 나머지를 모두 추가
 			for index, output := range tx.TxOuts {
-				if output.Owner == address {
+				if output.Address == address {
 					_, ok := creatorTxs[tx.Id]
 					// input으로 사용된 output이 아닌 output이라면 아직 사용되지 않은 output
 					// --> UTXO(Unspent Transaction Output)

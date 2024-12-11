@@ -95,13 +95,13 @@ func addressFromPrivateKey(key *ecdsa.PrivateKey) string {
 	return encodeBigInts(key.X.Bytes(), key.Y.Bytes())
 }
 
-// sign : payload를 받아서 private key로 sign한 결과를 리턴
+// Sign : payload를 받아서 private key로 Sign한 결과를 리턴
 // payload : transction 데이터
-// When we sign a transaction, anything has not been encrypted (we dont change the data)
+// When we Sign a transaction, anything has not been encrypted (we dont change the data)
 // We just create a signature for the data
 // It means that we can verify the data with the signature
 // So When we verify the data, we should get the 'data' and the 'signature' both
-func sign(payload string, w wallet) string {
+func Sign(payload string, w *wallet) string {
 	payloadAsBytes, err := hex.DecodeString(payload)
 	utils.HandleErr(err)
 
@@ -114,7 +114,7 @@ func sign(payload string, w wallet) string {
 // verify : signature, payload, address를 받아서 검증
 // we dont need the private key to verify the data
 // 주어진 address로 public Key를 복원한 후, payload와 signature를 이용해서 검증
-func verify(signature string, payload string, address string) bool {
+func Verify(signature string, payload string, address string) bool {
 	// 1. restore signature
 	r, s, err := restoreBigInts(signature)
 	utils.HandleErr(err)
