@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"os"
 
 	"github.com/IMHYEWON/hyewoncoin/10.transaction/utils"
@@ -62,14 +63,27 @@ func restoreKey() *ecdsa.PrivateKey {
 
 // private Key로 부터 address를 생성
 func addressFromPrivateKey(key *ecdsa.PrivateKey) string {
-	x := key.X.Bytes()
-	y := key.Y.Bytes()
-	fmt.Printf("length of X: %d \n length of Y: %d", len(x), len(y))
-
-	z := append(x, y...)
-	fmt.Println("z(address): ", z)
-
+	z := append(key.X.Bytes(), key.Y.Bytes()...)
 	return fmt.Sprintf("%x", z)
+}
+
+func restoreBigInts(signature string) (*big.Int, *big.Int, error) {
+	// 1. signature string을 byte로 변환
+	signatureBytes, err := hex.DecodeString(signature)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// 2. signature를 반으로 나눠서 r, s로 변반
+	firstHalfBytes := signatureBytes[:len(signatureBytes)/2]
+	seconHalfBytes := signatureBytes[len(signatureBytes)/2:]
+
+	// 3. r, s를 big.Int로 변환
+	bigA, bigB := big.Int{}, big.Int{}
+	bigA.SetBytes(firstHalfBytes)
+	bigB.SetBytes(seconHalfBytes)
+
+	return &bigA, &bigB, nil
 }
 
 // sign : payload를 받아서 private key로 sign한 결과를 리턴
@@ -81,15 +95,37 @@ func addressFromPrivateKey(key *ecdsa.PrivateKey) string {
 func sign(payload string, w *wallet) string {
 	payloadAsBytes, err := hex.DecodeString(payload)
 	utils.HandleErr(err)
+
 	r, s, err := ecdsa.Sign(rand.Reader, w.privateKey, payloadAsBytes)
 	utils.HandleErr(err)
+
 	signature := append(r.Bytes(), s.Bytes()...)
 	return fmt.Sprintf("%x", signature)
 }
 
-func verify(signature string, payload string, publicKey string) bool {
-	// we should take the signature and turn it into r and s
-	// we should take the public key and turn it into x and y
+// verify : signature, payload, address를 받아서 검증
+// we dont need the private key to verify the data
+func verify(signature string, payload string, address string) bool {
+	// 1. restore signature
+	r, s, err := restoreBigInts(signature)
+	utils.HandleErr(err)
+
+	// 2. restore public key
+	x, y, err := restoreBigInts(address)
+	utils.HandleErr(err)
+	publicKey := ecdsa.PublicKey{
+		Curve: elliptic.P256(),
+		X:     x,
+		Y:     y,
+	}
+
+	// 3. payload를 byte로 변환
+	payloadBytes, err := hex.DecodeString(payload)
+	utils.HandleErr(err)
+
+	// 4. verify
+	ok := ecdsa.Verify(&publicKey, payloadBytes, r, s)
+	return ok
 }
 
 func Wallet() *wallet {
