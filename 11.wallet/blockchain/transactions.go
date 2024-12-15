@@ -54,6 +54,13 @@ func (t *Tx) sign() {
 	}
 }
 
+/**
+ * 트랜잭션 검증
+ - 우리가 소유하고 있다는 것을 증명할 수 있어야 한다!
+
+ 내가 새로운 Transaction을 만들 때는, 모든 TxIn에 내 Private Key로 서명을 해야 함
+ = 내가 만약 이 TxIn에 사용된 UTXO의 주인이라면, 이 UTXO에 있는 Address 즉 Public Key로 이 서명(새로운 TxIn에 있는)을 검증할 수 있음
+**/
 // wallet 패키지에 있는 검증 함수를 사용하기 위해서는,
 // signature, payload, address 세 가지를 필요로 함
 func validate(tx *Tx) bool {
@@ -63,6 +70,7 @@ func validate(tx *Tx) bool {
 	valid := true
 
 	for _, txIn := range tx.TxIns {
+		// 이 트랜잭션을 만든 이전 트랜잭션을 찾지 못한다면, 이 input은 유효하지 않음
 		// 만약 여기서 previousTx를 찾을 수 없다면, 이 input은 우리의 블록체인에 존재하지 않는 것
 		// = 우리 블록체인 코인을 가지고 있지 않다는 뜻
 		previousTx := FindTx(BlockChain(), txIn.TxId)
@@ -71,10 +79,15 @@ func validate(tx *Tx) bool {
 			break
 		}
 
-		// 이전 트랜잭션 -> TxOut -> Address -> Public Key 복구
+		// 이전 트랜잭션의 TxOut이 이 TxIn을 만들었는지 확인
+		// 이전 트랜잭션 -> TxOut -> Address 찾음 -> Public Key 복구
 		address := previousTx.TxOuts[txIn.Index].Address
 		valid = wallet.Verify(txIn.Signature, tx.Id, address)
 
+		// 트랜잭션이 유효하지 않다면, 더 이상 검증할 필요가 없음
+		if !valid {
+			break
+		}
 	}
 
 	return valid
@@ -124,6 +137,9 @@ func makeCoinbaseTx(address string) *Tx {
 	tx.getId()
 	return &tx
 }
+
+var ErrNotEnoughMoney = errors.New("not enough money")
+var ErrorNotValid = errors.New("not valid")
 
 // Raw Transaction 생성
 func makeTx(from, to string, amount int) (*Tx, error) {
@@ -186,6 +202,10 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	}
 	tx.getId()
 	tx.sign()
+	valid := validate(tx)
+	if !valid {
+		return nil, ErrorNotValid
+	}
 	return tx, nil
 }
 

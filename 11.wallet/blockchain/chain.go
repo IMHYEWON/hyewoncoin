@@ -117,13 +117,18 @@ func UnspentTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 	for _, block := range Blocks(b) {
 		// 모든 트랜잭션을 가져옴
 		for _, tx := range block.Transactions {
-
 			// 1. 해당 주소에 해당하는 Transaction의 목록에서 사용된 Output을 찾기위해 Map에 마킹해둠
 			// (어떻게 ? Transaction의 Input에 포함되어있다는 것은 이미 사용된 Output이라는 뜻이기에, 이 Input의 부모 Transaction-Output을 확인해서)
 			// 모든 TxIn을 가져옴
+
+			// coinbase transaction은 제외
 			for _, input := range tx.TxIns {
+				if input.Signature == "COINBASE" {
+					break
+				}
+
 				// 이 주소에 속한 input을 찾음 -> 각 input은 부모 transaction의 output을 가지고 있음
-				if input.Signature == address {
+				if FindTx(b, input.TxId).TxOuts[input.Index].Address == address {
 					creatorTxs[input.TxId] = true
 				}
 			}
