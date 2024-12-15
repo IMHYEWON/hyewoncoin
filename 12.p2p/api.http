@@ -1,0 +1,34 @@
+http://localhost:3000/
+
+### Get all blocks
+http://localhost:3000/blocks
+
+### Add a block (Mining)
+POST http://localhost:3000/blocks
+
+### Get block By ID
+http://localhost:3000/blocks/b251fa684228107b7bdc2e92fbcd3676fd7e28de2a9aa789232ae83a1d76cccc
+
+### Get Status of Blockchain
+http://localhost:3000/status
+
+### Get All transactions by Address
+http://localhost:3000/balance/800d86c5738aa3b9c1f16b35ed7e440ef984d77de008f94e2d1d63d5830c39f72970f3cd80dd054d996775519c66b2e4516ba3481f8733667a962621405af456
+
+### Get All transactions by Address
+http://localhost:3000/balance/lynn
+
+### Get Total Amount by Address
+http://localhost:3000/balance/lynn?total=true
+
+
+### Send Transaction (hyewon -> 'to')
+POST http://localhost:3000/transactions
+
+{
+    "to":"lynn",
+    "amount":50
+}
+
+### Get All Transactions in Mempool
+http://localhost:3000/mempool

@@ -10,7 +10,7 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/IMHYEWON/hyewoncoin/11.wallet/utils"
+	"github.com/IMHYEWON/hyewoncoin/12.p2p/utils"
 )
 
 const walletFileName string = "hyewoncoin.wallet"
