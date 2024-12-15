@@ -8,6 +8,7 @@ import (
 
 	"github.com/IMHYEWON/hyewoncoin/11.wallet/blockchain"
 	"github.com/IMHYEWON/hyewoncoin/11.wallet/utils"
+	"github.com/IMHYEWON/hyewoncoin/11.wallet/wallet"
 	"github.com/gorilla/mux"
 )
 
@@ -33,6 +34,10 @@ type urlDescreption struct {
 type balanceResponse struct {
 	Address string `json:"address"`
 	Balance int    `json:"balance"`
+}
+
+type myWalletResponse struct {
+	Address string `json:"address"`
 }
 
 type errorResponse struct {
@@ -143,6 +148,7 @@ func transactions(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(rw).Encode(errorResponse{"not enough funds"})
+		return
 	}
 	rw.WriteHeader(http.StatusCreated)
 }
@@ -160,6 +166,11 @@ func jsonContentTypeMiddleWare(next http.Handler) http.Handler {
 	})
 }
 
+func myWallet(rw http.ResponseWriter, r *http.Request) {
+	address := wallet.Wallet().Address
+	json.NewEncoder(rw).Encode(myWalletResponse{Address: address})
+}
+
 func Start(aPort int) {
 	// http.NewServeMux : HTTP 요청을 처리하는 새로운 라우터 생성
 	router := mux.NewRouter()
@@ -174,6 +185,7 @@ func Start(aPort int) {
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", block).Methods("GET") // {id:[0-9]+} : 정규표현식으로 숫자만 받음
 	router.HandleFunc("/balance/{address}", balance).Methods("GET")
 	router.HandleFunc("/mempool", mempool)
+	router.HandleFunc("/wallet", myWallet).Methods("GET")
 	router.HandleFunc("/transactions", transactions)
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
